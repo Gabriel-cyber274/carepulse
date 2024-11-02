@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 
 interface ButtonProps {
     isLoading: boolean,
-    classname: string,
+    classname?: string,
     children: React.ReactNode
 }
 
