@@ -30,6 +30,7 @@ const RegisterForm = ({ user }: { user: User }) => {
             name: "",
             email: "",
             phone: "",
+            gender: "other", // Ensure gender matches the expected type
         },
     })
 
