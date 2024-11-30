@@ -1,7 +1,16 @@
-"use server"
+"use server";
 
 import { ID, Query } from "node-appwrite";
-import { BUCKET_ID, DATABASE_ID, databases, ENDPOINT, PATIENT_COLLECTION_ID, PROJECT_ID, storage, users } from "@/lib/appwrite.config";
+import {
+  BUCKET_ID,
+  DATABASE_ID,
+  databases,
+  ENDPOINT,
+  PATIENT_COLLECTION_ID,
+  PROJECT_ID,
+  storage,
+  users,
+} from "@/lib/appwrite.config";
 import { parseStringify } from "../utils";
 
 import { InputFile } from "node-appwrite/file";
@@ -41,17 +50,34 @@ export const getUser = async (userId: string) => {
   } catch (error) {
     console.log("Error in getUser:", error);
   }
-}
+};
 
-export const registerPatient = async ({ identificationDocument, ...patient }: RegisterUserParams) => {
+export const getPatient = async (userId: string) => {
+  try {
+    const patients = await databases.listDocuments(
+      DATABASE_ID!,
+      PATIENT_COLLECTION_ID!,
+      [Query.equal("userId", userId)]
+    );
+
+    return parseStringify(patients.documents[0]);
+  } catch (error) {
+    console.log("Error in getPatients:", error);
+  }
+};
+
+export const registerPatient = async ({
+  identificationDocument,
+  ...patient
+}: RegisterUserParams) => {
   try {
     let file;
 
     if (identificationDocument) {
       const inputFile = InputFile.fromBuffer(
         identificationDocument?.get("blobFile") as Blob,
-        identificationDocument?.get("fileName") as string,
-      )
+        identificationDocument?.get("fileName") as string
+      );
 
       file = await storage.createFile(BUCKET_ID!, ID.unique(), inputFile);
     }
@@ -63,12 +89,12 @@ export const registerPatient = async ({ identificationDocument, ...patient }: Re
       {
         identificationDocumentId: file?.$id || null,
         identificationDocumentUrl: `${ENDPOINT}/storage/buckets/${BUCKET_ID}/files/${file?.$id}/view?project=${PROJECT_ID}`,
-        ...patient
+        ...patient,
       }
-    )
+    );
 
     return parseStringify(newPatient);
   } catch (error) {
     console.error("Error in registerPatient:", error);
   }
-}
+};
