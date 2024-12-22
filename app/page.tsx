@@ -5,7 +5,6 @@ import Link from "next/link";
 export default function Home() {
   return (
     <div className="flex h-screen max-h-screen">
-
       {/* TODO: OTP Verification ~ Pass key modal */}
 
       <section className="remove-scrollbar container my-auto">
@@ -22,7 +21,7 @@ export default function Home() {
 
           <div className="text-14-regular mt-20 flex justify-between">
             <p className="justify-items-end text-dark-600 xl:text-left">
-              © 2024 CarePulse.
+              © 2025 CarePulse.
             </p>
             <Link href="/?admin=true" className="text-green-500">
               Admin
@@ -31,7 +30,7 @@ export default function Home() {
         </div>
       </section>
 
-      <Image 
+      <Image
         src="/assets/images/onboarding-img.png"
         height={1000}
         width={1000}
