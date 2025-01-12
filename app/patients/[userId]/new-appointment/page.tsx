@@ -2,8 +2,25 @@ import AppointmentForm from "@/components/forms/AppointmentForm";
 import { getPatient } from "@/lib/actions/patient.actions";
 import Image from "next/image";
 
+
 export default async function NewAppointment({ params: { userId } }: SearchParamProps) {
     const patient = await getPatient(userId);
+
+    if (!patient || !patient.id) {
+        return (
+            <div className="flex h-screen items-center justify-center">
+                <p className="text-lg text-red-300">
+                    Patient data could not be retrieved. Please try again later.
+                </p>
+            </div>
+        );
+    }
+
+    console.log(patient, 'hello boss');
+
+    // useEffect(()=> {
+    //     console.log(patient, 'hello boss')
+    // }, [])
 
     return (
         <div className="flex h-screen max-h-screen">
@@ -20,7 +37,7 @@ export default async function NewAppointment({ params: { userId } }: SearchParam
                     <AppointmentForm
                         type="create"
                         userId={userId}
-                        patientId={patient.$id}
+                        patientId={patient.id}
                     />
 
                     <p className="copyright mt-10 py-12">
