@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { z } from "zod"
 
 import { Form } from "@/components/ui/form"
@@ -17,6 +17,16 @@ import { SelectItem } from "@/components/ui/select"
 import Image from "next/image"
 import { create } from "domain"
 import { createAppointment } from "@/lib/actions/appointment.actions"
+import { ID, Query } from "appwrite";
+
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
+import {databases, DATABASE_ID, PATIENT_COLLECTION_ID, APPOINTMENT_COLLECTION_ID, BUCKET_ID, storage, ENDPOINT, PROJECT_ID, DOCTOR_COLLECTION_ID, API_KEY} from '../../lib/appwriteConfig2'
+import { InputFile } from "node-appwrite/file"
+import { DoctorType } from "@/types/appwrite.types"
+
 
 const AppointmentForm = ({
     userId, patientId, type
@@ -27,6 +37,14 @@ const AppointmentForm = ({
 }) => {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
+    const [userDetails, setUserDetails] = useState({});
+    const [identificationType, setidentificationType] = useState<string>("")
+    const [gender, setGender] = useState<string>("")
+    const [docUrl, setDocUrl] = useState<string>("")
+    const [primaryPhysician, setPrimaryPhysician] = useState<string>("")
+    const [reselect, setReselect] = useState<boolean>(false)
+    const [doctorsInfo, setDoctorsInfo] = useState<DoctorType[]>([]);
+
 
     const AppointmentFormValidation = getAppointmentSchema(type)
 
@@ -40,6 +58,15 @@ const AppointmentForm = ({
             cancellationReason: "",
         },
     })
+
+    const toaster = (message:string, type:string) => {
+        if(type == 'err') {
+          toast.error(message)
+        }else {
+          toast.success(message);
+        }
+      };
+
 
     async function onSubmit(values: z.infer<typeof AppointmentFormValidation>) {
         setIsLoading(true);
@@ -65,25 +92,55 @@ const AppointmentForm = ({
                 console.log("Creating appointment with:", values);
 
                 const appointmentData = {
-                    userId,
-                    patient: patientId,
-                    primaryPhysician: values.primaryPhysician,
+                    // userId,
+                    // patient: patientId,
+                    patient: userId,
+                    // primaryPhysician: values.primaryPhysician,
+                    primaryPhysician: doctorsInfo.filter((doc)=> doc.name == values.primaryPhysician)[0].$id,
                     schedule: new Date(values.schedule),
                     reason: values.reason!,
                     note: values.note,
                     status: status as Status,
                 }
-                const appointment = await createAppointment(appointmentData);
 
-                console.log("Created appointment:", appointment);
+                let response = await databases.createDocument(
+                    DATABASE_ID,
+                    APPOINTMENT_COLLECTION_ID,
+                    ID.unique(),
+                    appointmentData
+                  )
 
-                if (appointment) {
-                    form.reset()
-                    router.push(`/patients/${userId}/new-appointment/success?appointmentId=${appointment.id}`)
+                setIsLoading(false);
+
+                if(response) {
+                    toaster('successful', 'success');
+                    form.reset();
+                    setTimeout(() => {
+                        router.back();
+                    
+                    }, 3000);
                 }
+                console.log(response, 'active');
+
+
+
+                // const appointment = await createAppointment(appointmentData);
+
+                // console.log("Created appointment:", appointment);
+
+                console.log(appointmentData, 'hello')
+
+                // if (appointment) {
+                //     form.reset()
+                //     router.push(`/patients/${userId}/new-appointment/success?appointmentId=${appointment.id}`)
+                // }
             }
 
         } catch (error) {
+            toaster(JSON.stringify(error), 'err');
+
+            setIsLoading(false);
+
             console.error(error);
         }
     }
@@ -106,6 +163,61 @@ const AppointmentForm = ({
             break;
     }
 
+
+    useEffect(()=> {
+        getUsetInfo();
+        getDoctors();
+    }, [])
+
+    const getDoctors = async()=> {
+        try {
+            let response = await databases.listDocuments(
+                DATABASE_ID,
+                DOCTOR_COLLECTION_ID,  
+            );
+            const doctors2: DoctorType[] = response.documents.map((doc) => ({
+                $id: doc.$id,
+                name: doc.name,
+                image: doc.image,
+                area_of_specialization: doc.area_of_specialization,
+                hospital_location: doc.hospital_location,
+                hospital_name: doc.hospital_name,
+            }));
+    
+            // Set the state with the transformed data
+            setDoctorsInfo(doctors2);
+            console.log(response.documents, 'active')
+        } catch (error) {
+            setIsLoading(false);
+            console.error(error);
+        }
+    }
+
+    const getUsetInfo =async()=> {
+        const localInfo = localStorage.getItem("userInfo");
+        if (localInfo) {
+            try {
+                const parsedInfo = JSON.parse(localInfo);
+                const checkInfo = await databases.listDocuments(
+                    DATABASE_ID,
+                    PATIENT_COLLECTION_ID,
+                    [Query.equal("email", [parsedInfo.email])]
+                );
+
+                if (checkInfo.documents.length > 0) {
+                    const userInfo = checkInfo.documents[0];
+                    setUserDetails(userInfo);
+                    localStorage.setItem("userInfo", JSON.stringify(userInfo));
+
+                }
+            } catch (error) {
+                console.error("Error fetching user info:", error);
+            }
+        }
+    }
+
+
+
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
@@ -123,7 +235,7 @@ const AppointmentForm = ({
                             label="Doctor"
                             placeholder="Select a doctor"
                         >
-                            {Doctors.map((doctor) => (
+                            {doctorsInfo.map((doctor) => (
                                 <SelectItem
                                     key={doctor.name}
                                     value={doctor.name}
@@ -188,6 +300,8 @@ const AppointmentForm = ({
                     {buttonLabel}
                 </SubmitButton>
             </form>
+            <ToastContainer />
+
         </Form>
     )
 }

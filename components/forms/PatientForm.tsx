@@ -6,11 +6,16 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { z } from "zod";
 
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import { Form } from "@/components/ui/form";
 import CustomFormField from "@/components/CustomFormField";
 import SubmitButton from "@/components/SubmitButton";
 import { UserFormValidation } from "@/lib/validation";
 import { createUser } from "@/lib/actions/patient.actions";
+import {databases, DATABASE_ID, PATIENT_COLLECTION_ID, DOCTOR_COLLECTION_ID} from '../../lib/appwriteConfig2'
+import { ID, Query } from "appwrite";
 
 export enum FormFieldType {
   INPUT = "input",
@@ -22,7 +27,11 @@ export enum FormFieldType {
   SKELETON = "skeleton",
 }
 
-const PatientForm = () => {
+interface PatientFormProps {
+  type: string; 
+}
+
+const PatientForm: React.FC<PatientFormProps> = ({ type }) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -35,24 +44,130 @@ const PatientForm = () => {
     },
   });
 
+  const toaster = (message:string, type:string) => {
+    if(type == 'err') {
+      toast.error(message)
+    }else {
+      toast.success(message);
+    }
+  };
+
   async function onSubmit({
     name,
     email,
     phone,
   }: z.infer<typeof UserFormValidation>) {
+    if(type == "patient") {
+      loginPatient(name,email,phone);
+    }else {
+      loginDoctor(name,email,phone);
+    }
+    
+  }
+
+  const loginDoctor = async (name:string, email:string, phone:string)=> {
     setIsLoading(true);
 
     try {
       const userData = { name, email, phone };
 
-      const user = await createUser(userData);
+
+      let checkInfo = await databases.listDocuments(
+        DATABASE_ID,
+        DOCTOR_COLLECTION_ID,
+        [
+            Query.equal('email', [email]),
+        ]
+    );
+
+    if(checkInfo.total == 0) {
+      let response = await databases.createDocument(
+              DATABASE_ID,
+              DOCTOR_COLLECTION_ID,
+              ID.unique(),
+              userData
+            )
+
+      localStorage.setItem('doctorInfo', JSON.stringify(response))
+            
+      // router.push(`/patients/${response.$id}/register`)
+      router.push(`/doctor/register/${response.$id}`)
+    }else {
+      localStorage.setItem('doctorInfo', JSON.stringify(checkInfo.documents[0]))
+      router.push(`/admin`)
+    }
+
+
+    toaster('successful', 'success');
+
+          
+
+
+      console.log(userData, 'active')
+      // const user = await createUser(userData);
 
       setIsLoading(false)
 
-      console.log(user, 'resgistee');
+      // console.log(user, 'resgistee');
 
-      if (user) router.push(`/patients/${user.$id}/register`);
+      // if (user) router.push(`/patients/${user.$id}/register`);
     } catch (error) {
+      toaster(JSON.stringify(error), 'err');
+      setIsLoading(false);
+      console.error(error);
+    }
+
+  }
+
+  const loginPatient = async(name:string, email:string, phone:string)=> {
+    setIsLoading(true);
+
+    try {
+      const userData = { name, email, phone };
+
+
+      let checkInfo = await databases.listDocuments(
+        DATABASE_ID,
+        PATIENT_COLLECTION_ID,
+        [
+            Query.equal('email', [email]),
+        ]
+    );
+
+    if(checkInfo.total == 0) {
+      let response = await databases.createDocument(
+              DATABASE_ID,
+              PATIENT_COLLECTION_ID,
+              ID.unique(),
+              userData
+            )
+
+      localStorage.setItem('userInfo', JSON.stringify(response))
+            
+      // console.log(response, 'active created')
+      router.push(`/patients/${response.$id}/register`)
+    }else {
+      localStorage.setItem('userInfo', JSON.stringify(checkInfo.documents[0]))
+      // console.log(checkInfo.documents[0].$id, 'active2')
+      router.push(`/patients/${checkInfo.documents[0].$id}/register`)
+    }
+
+
+    toaster('successful', 'success');
+
+          
+
+
+      console.log(userData, 'active')
+      // const user = await createUser(userData);
+
+      setIsLoading(false)
+
+      // console.log(user, 'resgistee');
+
+      // if (user) router.push(`/patients/${user.$id}/register`);
+    } catch (error) {
+      toaster(JSON.stringify(error), 'err');
       setIsLoading(false);
       console.error(error);
     }
@@ -63,7 +178,7 @@ const PatientForm = () => {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
         <section className="mb-12 space-y-4">
           <h1 className="header">Hello!</h1>
-          <p className="text-dark-700">Schedule your first appointment</p>
+          <p className="text-dark-700">{type == "patient" ? "Schedule your first appointment" : "Manage your appointments"}</p>
         </section>
 
         <CustomFormField
@@ -96,6 +211,8 @@ const PatientForm = () => {
 
         <SubmitButton isLoading={isLoading}>Get Started</SubmitButton>
       </form>
+
+      <ToastContainer />
     </Form>
   );
 };

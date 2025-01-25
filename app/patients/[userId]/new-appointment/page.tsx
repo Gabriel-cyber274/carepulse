@@ -4,19 +4,19 @@ import Image from "next/image";
 
 
 export default async function NewAppointment({ params: { userId } }: SearchParamProps) {
-    const patient = await getPatient(userId);
+    // const patient = await getPatient(userId);
 
-    if (!patient || !patient.id) {
-        return (
-            <div className="flex h-screen items-center justify-center">
-                <p className="text-lg text-red-300">
-                    Patient data could not be retrieved. Please try again later.
-                </p>
-            </div>
-        );
-    }
+    // if (!patient || !patient.id) {
+    //     return (
+    //         <div className="flex h-screen items-center justify-center">
+    //             <p className="text-lg text-red-300">
+    //                 Patient data could not be retrieved. Please try again later.
+    //             </p>
+    //         </div>
+    //     );
+    // }
 
-    console.log(patient, 'hello boss');
+    // console.log(patient, 'hello boss');
 
     // useEffect(()=> {
     //     console.log(patient, 'hello boss')
@@ -37,7 +37,7 @@ export default async function NewAppointment({ params: { userId } }: SearchParam
                     <AppointmentForm
                         type="create"
                         userId={userId}
-                        patientId={patient.id}
+                        patientId="kskkddd"
                     />
 
                     <p className="copyright mt-10 py-12">

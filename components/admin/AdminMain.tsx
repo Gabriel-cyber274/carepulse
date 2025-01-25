@@ -1,30 +1,185 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import AdminNav from "./AdminNav";
 import ScheduleModal from './ScheduleModal';
 import CancelModal from './CancelModal';
+import { DATABASE_ID, databases, DOCTOR_COLLECTION_ID, APPOINTMENT_COLLECTION_ID } from '@/lib/appwriteConfig2';
+import { Query } from 'appwrite';
+import { toast,} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+interface UserDetails {
+    $collectionId: string;
+    $createdAt: string;
+    $databaseId: string;
+    $id: string;
+    $permissions: string[];
+    $updatedAt: string;
+    appointment: any[];
+    area_of_specialization: string;
+    doctorNotification: any[];
+    email: string;
+    hospital_location: string;
+    hospital_name: string;
+    image: string;
+    name: string;
+    patient: any[];
+    phone: string;
+  }
+
+  interface Appointment {
+    $id: string;
+    $createdAt: string;
+    $updatedAt: string;
+    patient: {
+      name: string;
+      phone: string;
+      birthDate: string;
+      gender: string;
+      address: string;
+    };
+    primaryPhysician: {
+      name: string;
+      image: string;
+      area_of_specialization: string;
+      hospital_name: string;
+      hospital_location: string;
+    };
+    reason: string;
+    schedule: string;
+    status: string;
+    cancel_reason: string | null;
+    note: string;
+  }
+  
 
 function AdminMain() {
     const [scheduleModal, showScheduleModal] = useState(false);
     const [cancelModal, showCancelModal] = useState(false);
+    const [appointment, setAppointment] = useState<Appointment[]>([]);
+    const [userDetails, setUserDetails] = useState<UserDetails | null>(null); 
+    const [appointmentDetails, setAppointmentDetails] = useState<Appointment | null>(null)
+
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const itemsPerPage = 10;
+  
+    const handleNext = () => {
+      if (currentIndex + itemsPerPage < appointment.length) {
+        setCurrentIndex((prev) => prev + itemsPerPage);
+      }
+    };
+  
+    const handlePrev = () => {
+      if (currentIndex - itemsPerPage >= 0) {
+        setCurrentIndex((prev) => prev - itemsPerPage);
+      }
+    };
+
+    const currentItems = appointment.slice(currentIndex, currentIndex + itemsPerPage);
+    
 
 
-    const showScheduleFunc =()=> {
+    const toaster = (message:string, type:string) => {
+        if(type == 'err') {
+          toast.error(message)
+        }else {
+          toast.success(message);
+        }
+      };
+
+    const showScheduleFunc =(details:Appointment)=> {
+        setAppointmentDetails(details)
         showScheduleModal(true);
     }
 
-    const showCancelFunc = ()=> {
+    const showCancelFunc = (details:Appointment)=> {
+        setAppointmentDetails(details)
         showCancelModal(true);   
     }
 
+    useEffect(()=> {
+        getUsetInfo();
+        getAppointment();
+      }, [cancelModal, scheduleModal])
+
+      const getAppointment = async()=> {
+        const localInfo = localStorage.getItem("doctorInfo");
+        if (localInfo) {
+            try {
+                const parsedInfo = JSON.parse(localInfo);
+                const response = await databases.listDocuments(
+                    DATABASE_ID,
+                    APPOINTMENT_COLLECTION_ID,
+                    [Query.equal("primaryPhysician", [parsedInfo.$id]), Query.orderDesc("$createdAt")]
+                );
+
+                const appointments = response.documents.map((doc) => ({
+                    $id: doc.$id,
+                    $createdAt: doc.$createdAt,
+                    $updatedAt: doc.$updatedAt,
+                    patient: doc.patient,
+                    primaryPhysician: doc.primaryPhysician,
+                    reason: doc.reason,
+                    schedule: doc.schedule,
+                    status: doc.status,
+                    cancel_reason: doc.cancel_reason ?? null,
+                    note: doc.note,
+                  })) as Appointment[];
+            
+                  setAppointment(appointments);
+
+                console.log(response, 'active')
+            } catch (error) {
+                toaster(JSON.stringify(error), 'err');
+                console.error("Error fetching user info:", error);
+            }
+        } 
+      }
+    
+    
+    const getUsetInfo =async()=> {
+        const localInfo = localStorage.getItem("doctorInfo");
+        if (localInfo) {
+            try {
+                const parsedInfo = JSON.parse(localInfo);
+                const checkInfo = await databases.listDocuments(
+                    DATABASE_ID,
+                    DOCTOR_COLLECTION_ID,
+                    [Query.equal("email", [parsedInfo.email])]
+                );
+    
+                if (checkInfo.documents.length > 0) {
+                    const userInfo = checkInfo.documents[0] as UserDetails;
+                    setUserDetails(userInfo);
+                    localStorage.setItem("doctorInfo", JSON.stringify(userInfo));    
+                }
+            } catch (error) {
+                toaster(JSON.stringify(error), 'err');
+                console.error("Error fetching user info:", error);
+            }
+        }
+    }
+
+    function formatDate(dateString: string): string {
+        const date = new Date(dateString); // Parse the input date string
+        const options: Intl.DateTimeFormatOptions = { 
+          year: "numeric", 
+          month: "short", 
+          day: "numeric" 
+        }; // Correctly typed options
+        return date.toLocaleDateString("en-US", options); // Format the date
+      }
+
+    
+
   return (
     <div className='main_admin'>
-        <AdminNav />
+        <AdminNav id={userDetails?.$id ?? ""} image={userDetails?.image ?? ""} />
         <div className="main_body">
             <div className="cont_first">
                 <div className="header">
-                    <h1>Welcome, Admin</h1>
+                    <h1>Welcome, {userDetails ? userDetails.name.slice(0,userDetails.name.indexOf(" ")) : ""}</h1>
                     <h2>Start day with managing new appointments</h2>
                 </div>
                 <div className="appoints_boxes">
@@ -35,7 +190,7 @@ function AdminMain() {
                             </svg>
 
 
-                            <h2>94</h2>
+                            <h2>{appointment.filter((appoint)=> appoint.status == "scheduled").length}</h2>
                         </div>
                         <h3>Total number of  scheduled appointments</h3>
                         
@@ -48,7 +203,7 @@ function AdminMain() {
 
 
 
-                            <h2>94</h2>
+                            <h2>{appointment.filter((appoint)=> appoint.status == "pending").length}</h2>
                         </div>
                         <h3>Total number of pending appointments</h3>
                         
@@ -59,9 +214,7 @@ function AdminMain() {
                             <path d="M15.9995 10.9998V16.3332M15.9995 21.6665H16.0128M14.1533 4.18878L3.18675 23.1309C2.57848 24.1816 2.27434 24.7069 2.31929 25.1381C2.3585 25.5141 2.55553 25.8559 2.86134 26.0782C3.21195 26.3332 3.81897 26.3332 5.033 26.3332H26.966C28.1801 26.3332 28.7871 26.3332 29.1377 26.0782C29.4435 25.8559 29.6405 25.5141 29.6797 25.1381C29.7247 24.7069 29.4205 24.1816 28.8123 23.1309L17.8458 4.18878C17.2397 3.1419 16.9366 2.61845 16.5412 2.44265C16.1964 2.2893 15.8027 2.2893 15.4578 2.44265C15.0624 2.61845 14.7594 3.1419 14.1533 4.18878Z" stroke="#FF4F4E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
 
-
-
-                            <h2>94</h2>
+                            <h2>{appointment.filter((appoint)=> appoint.status == "cancelled").length}</h2>
                         </div>
                         <h3>Total number of cancelled  appointments</h3>
                         
@@ -76,123 +229,89 @@ function AdminMain() {
                         <h2>Doctor</h2>
                         <h2>Actions</h2>
                     </div>
-                    <div className="table_body">
-                        <h2>
-                            <div className="patient_name">
-                                <div className="circle">
-                                PB
+                    {currentItems.map((appoint, index)=> (
+                        <div className={`table_body ${index+1 % 2 == 0 && 'gray_ish'}`} key={index}>
+                            <h2>
+                                <div className="patient_name">
+                                    <div className="circle">
+                                    {appoint.patient.name
+                                    .split(" ")
+                                    .map((part) => part[0].toUpperCase())
+                                    .join("")}
+                                    </div>
+                                    {appoint.patient.name}
                                 </div>
-                                Phoenix Baker
-                            </div>
-                        </h2>
-                        <h2>Jan 4, 2022</h2>
-                        <h2>
-                            <div className="badge">
-                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M10 3L4.5 8.5L2 6" stroke="#24AE7C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                <h5>Scheduled</h5>
-                            </div>
-                        </h2>
-                        <h2>
-                            <div className="dr_pic">
-                                <img src="/assets/images/dr-powell.png" alt="pic" />
-                                <h3>Dr. Alex Ramirez</h3>
-                            </div>
-                        </h2>
-                        <h2>
-                            <div className="action">
-                                <h3 className='green' onClick={showScheduleFunc}>Schedule</h3>
-                                <h3 onClick={showCancelFunc}>Cancel</h3>
-                            </div>
-                        </h2>
-                    </div>
-                    <div className="table_body gray_ish">
-                        <h2>
-                            <div className="patient_name">
-                                <div className="circle">
-                                PB
-                                </div>
-                                Phoenix Baker
-                            </div>
-                        </h2>
-                        <h2>Jan 4, 2022</h2>
-                        <h2>
-                            <div className="badge pending">
-                                <svg width="10" height="12" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M5 6L2.86356 4.21963C2.54613 3.95511 2.38742 3.82285 2.27332 3.66072C2.17222 3.51707 2.09714 3.35677 2.05151 3.18714C2 2.99569 2 2.7891 2 2.3759V1M5 6L7.13644 4.21963C7.45387 3.95511 7.61258 3.82285 7.72668 3.66072C7.82778 3.51707 7.90286 3.35677 7.94849 3.18714C8 2.99569 8 2.7891 8 2.3759V1M5 6L2.86356 7.78037C2.54613 8.04489 2.38742 8.17715 2.27332 8.33928C2.17222 8.48293 2.09714 8.64323 2.05151 8.81286C2 9.00431 2 9.2109 2 9.6241V11M5 6L7.13644 7.78037C7.45387 8.04489 7.61258 8.17715 7.72668 8.33928C7.82778 8.48293 7.90286 8.64323 7.94849 8.81286C8 9.00431 8 9.2109 8 9.6241V11M1 1H9M1 11H9" stroke="#79B5EC" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
+                            </h2>
+                            <h2>{formatDate(appoint.schedule)}</h2>
+                            <h2>
+                                {appoint.status=="scheduled"&& <div className="badge">
+                                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M10 3L4.5 8.5L2 6" stroke="#24AE7C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <h5>Scheduled</h5>
+                                </div>}
+                                {appoint.status=="pending"&& 
+                                <div className="badge pending">
+                                    <svg width="10" height="12" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5 6L2.86356 4.21963C2.54613 3.95511 2.38742 3.82285 2.27332 3.66072C2.17222 3.51707 2.09714 3.35677 2.05151 3.18714C2 2.99569 2 2.7891 2 2.3759V1M5 6L7.13644 4.21963C7.45387 3.95511 7.61258 3.82285 7.72668 3.66072C7.82778 3.51707 7.90286 3.35677 7.94849 3.18714C8 2.99569 8 2.7891 8 2.3759V1M5 6L2.86356 7.78037C2.54613 8.04489 2.38742 8.17715 2.27332 8.33928C2.17222 8.48293 2.09714 8.64323 2.05151 8.81286C2 9.00431 2 9.2109 2 9.6241V11M5 6L7.13644 7.78037C7.45387 8.04489 7.61258 8.17715 7.72668 8.33928C7.82778 8.48293 7.90286 8.64323 7.94849 8.81286C8 9.00431 8 9.2109 8 9.6241V11M1 1H9M1 11H9" stroke="#79B5EC" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
 
-                                <h5>Pending</h5>
-                            </div>
-                        </h2>
-                        <h2>
-                            <div className="dr_pic">
-                                <img src="/assets/images/dr-powell.png" alt="pic" />
-                                <h3>Dr. Alex Ramirez</h3>
-                            </div>
-                        </h2>
-                        <h2>
-                            <div className="action">
-                                <h3 className='green'>Schedule</h3>
-                                <h3>Cancel</h3>
-                            </div>
-                        </h2>
-                    </div>
-                    <div className="table_body">
-                        <h2>
-                            <div className="patient_name">
-                                <div className="circle">
-                                PB
-                                </div>
-                                Phoenix Baker
-                            </div>
-                        </h2>
-                        <h2>Jan 4, 2022</h2>
-                        <h2>
-                            <div className="badge cancel">
-                                <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M6.5 1.5L1.5 6.5M1.5 1.5L6.5 6.5" stroke="#F37877" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
+                                    <h5>Pending</h5>
+                                </div>}
+                                {appoint.status=="cancelled"&& 
+                                <div className="badge cancel">
+                                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6.5 1.5L1.5 6.5M1.5 1.5L6.5 6.5" stroke="#F37877" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
 
-                                <h5>Cancelled</h5>
-                            </div>
-                        </h2>
-                        <h2>
-                            <div className="dr_pic">
-                                <img src="/assets/images/dr-powell.png" alt="pic" />
-                                <h3>Dr. Alex Ramirez</h3>
-                            </div>
-                        </h2>
-                        <h2>
-                            <div className="action">
-                                <h3 className='green'>Schedule</h3>
-                                <h3>Cancel</h3>
-                            </div>
-                        </h2>
-                    </div>
+                                    <h5>Cancelled</h5>
+                                </div>}
+                            </h2>
+                            <h2>
+                                <div className="dr_pic">
+                                    <img src={appoint.primaryPhysician.image} alt="pic" />
+                                    <h3>{appoint.primaryPhysician.name}</h3>
+                                </div>
+                            </h2>
+                            <h2>
+                                <div className="action">
+                                    <h3 className='green' onClick={()=>showScheduleFunc(appoint)}>Schedule</h3>
+                                    <h3 onClick={()=>showCancelFunc(appoint)}>Cancel</h3>
+                                </div>
+                            </h2>
+                        </div>
+                    ))}
+
+
                     <div className="footer_nav">
-                        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g filter="url(#filter0_d_13001_1123)">
-                        <rect x="2" y="1" width="36" height="36" rx="8" fill="#1C2023"/>
-                        <rect x="2.5" y="1.5" width="35" height="35" rx="7.5" stroke="#1A1D21"/>
-                        <path d="M15.8332 18.9998L18.6109 15.6665M15.8332 18.9998L18.6109 22.3332M15.8332 18.9998L24.1665 18.9998" stroke="#24AE7C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </g>
-                        <defs>
-                        <filter id="filter0_d_13001_1123" x="0" y="0" width="40" height="40" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                        <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-                        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-                        <feOffset dy="1"/>
-                        <feGaussianBlur stdDeviation="1"/>
-                        <feColorMatrix type="matrix" values="0 0 0 0 0.0627451 0 0 0 0 0.0941176 0 0 0 0 0.156863 0 0 0 0.05 0"/>
-                        <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_13001_1123"/>
-                        <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_13001_1123" result="shape"/>
-                        </filter>
-                        </defs>
+                        <svg   onClick={handlePrev}
+                        style={{ cursor: currentIndex > 0 ? "pointer" : "not-allowed" }}
+                        width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <g filter="url(#filter0_d_13001_1123)">
+                                                            <rect x="2" y="1" width="36" height="36" rx="8" fill="#1C2023"/>
+                                                            <rect x="2.5" y="1.5" width="35" height="35" rx="7.5" stroke="#1A1D21"/>
+                                                            <path d="M15.8332 18.9998L18.6109 15.6665M15.8332 18.9998L18.6109 22.3332M15.8332 18.9998L24.1665 18.9998" stroke="#24AE7C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                            </g>
+                                                            <defs>
+                                                            <filter id="filter0_d_13001_1123" x="0" y="0" width="40" height="40" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                                            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                                                            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                                                            <feOffset dy="1"/>
+                                                            <feGaussianBlur stdDeviation="1"/>
+                                                            <feColorMatrix type="matrix" values="0 0 0 0 0.0627451 0 0 0 0 0.0941176 0 0 0 0 0.156863 0 0 0 0.05 0"/>
+                                                            <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_13001_1123"/>
+                                                            <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_13001_1123" result="shape"/>
+                                                            </filter>
+                                                            </defs>
+                                                            
+                                        
                         </svg>
 
 
-                        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg onClick={handleNext}
+                            style={{
+                                cursor: currentIndex + itemsPerPage < appointment.length ? "pointer" : "not-allowed",
+                            }} width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g filter="url(#filter0_d_13001_1127)">
                         <rect width="36" height="36" rx="8" transform="matrix(-1 0 0 1 38 1)" fill="#1C2023"/>
                         <rect x="-0.5" y="0.5" width="35" height="35" rx="7.5" transform="matrix(-1 0 0 1 37 1)" stroke="#1A1D21"/>
@@ -212,10 +331,10 @@ function AdminMain() {
                         </svg>
                     </div>
 
-                    {cancelModal && <CancelModal showCancelModal={showCancelModal} />}
+                    {cancelModal && <CancelModal showCancelModal={showCancelModal} appointmentDetails={appointmentDetails}  />}
 
 
-                    {scheduleModal && <ScheduleModal showScheduleModal={showScheduleModal}  />}
+                    {scheduleModal && <ScheduleModal showScheduleModal={showScheduleModal} appointmentDetails={appointmentDetails}  />}
                 </div>
             </div>
         </div>

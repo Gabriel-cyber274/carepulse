@@ -35,10 +35,11 @@ interface CustomProps {
     showTimeSelect?: boolean,
     children?: React.ReactNode,
     renderSkeleton?: (field: any) => React.ReactNode,
+    defaultValue?: string, 
 }
 
 const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
-    const { fieldType, iconSrc, iconAlt, placeholder, showTimeSelect, dateFormat, renderSkeleton } = props;
+    const { fieldType, iconSrc, iconAlt, placeholder, showTimeSelect, dateFormat, renderSkeleton, defaultValue } = props;
 
     switch (fieldType) {
         case FormFieldType.INPUT:
@@ -107,7 +108,9 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
                 <FormControl>
                     <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        // defaultValue={field.value}
+                        value={field.value || defaultValue}
+                        // value={field.value || ""} 
                     >
                         <FormControl>
                             <SelectTrigger className="shad-select-trigger">

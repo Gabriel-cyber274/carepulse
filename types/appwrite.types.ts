@@ -34,3 +34,12 @@ export interface Appointment extends Models.Document {
   userId: string;
   cancellationReason: string | null;
 }
+
+export interface DoctorType {
+  $id: string;
+  name: string;
+  image: string;
+  area_of_specialization: string;
+  hospital_location: string;
+  hospital_name: string;
+}

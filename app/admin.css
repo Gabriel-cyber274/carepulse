@@ -649,7 +649,12 @@
         width: 100%;
         overflow: auto;
     }
-    .main_admin .main_body .cont_first .appoint_table .table_header, .main_admin .main_body .cont_first .appoint_table .table_body, .main_admin .main_body .cont_first .appoint_table .footer_nav {
+    .main_admin .main_body .cont_first .appoint_table .footer_nav {
+        position: sticky;
+        width: 100%;
+        left: 0;
+    }
+    .main_admin .main_body .cont_first .appoint_table .table_header, .main_admin .main_body .cont_first .appoint_table .table_body {
         width: 1200px;
     }
 }

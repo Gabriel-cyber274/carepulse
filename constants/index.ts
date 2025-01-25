@@ -18,7 +18,7 @@ export const PatientFormDefaultValues = {
   currentMedication: "",
   familyMedicalHistory: "",
   pastMedicalHistory: "",
-  identificationType: "Birth Certificate",
+  identificationType: "",
   identificationNumber: "",
   identificationDocument: [],
   treatmentConsent: false,
@@ -27,8 +27,8 @@ export const PatientFormDefaultValues = {
 };
 
 export const IdentificationTypes = [
-  "Birth Certificate",
   "Driver's License",
+  "Birth Certificate",
   "National Identity Card (NIN)",
   "International Passport",
   "Voter's Card",
@@ -79,6 +79,16 @@ export const Doctors = [
     name: "Hardik Sharma",
   },
 ];
+
+export const DoctorsFormDefaultValues = {
+  name: "",
+  email: "",
+  phone: "",
+  hospital_name: "",
+  hospital_location: "",
+  area_of_specialization: "",
+  image: []
+};
 
 export const StatusIcon = {
   scheduled: "/assets/icons/check.svg",

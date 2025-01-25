@@ -1,19 +1,121 @@
-import React from 'react'
+"use client"
 
+import React from 'react'
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+import { Form, FormControl } from "@/components/ui/form";
+import CustomFormField from "@/components/CustomFormField";
+import SubmitButton from "@/components/SubmitButton";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { z } from "zod";
+
+import Image from 'next/image';
+import { CancelModalFormValidation } from "@/lib/validation";
+import {databases, DATABASE_ID, PATIENT_COLLECTION_ID, BUCKET_ID, storage, ENDPOINT, PROJECT_ID, DOCTOR_COLLECTION_ID, APPOINTMENT_COLLECTION_ID} from '../../lib/appwriteConfig2'
+
+
+
+
+interface Appointment {
+    $id: string;
+    $createdAt: string;
+    $updatedAt: string;
+    patient: {
+      name: string;
+      phone: string;
+      birthDate: string;
+      gender: string;
+      address: string;
+    };
+    primaryPhysician: {
+      name: string;
+      image: string;
+      area_of_specialization: string;
+      hospital_name: string;
+      hospital_location: string;
+    };
+    reason: string;
+    schedule: string;
+    status: string;
+    cancel_reason: string | null;
+    note: string;
+  }
 
 interface ScheduleModalProps {
     showCancelModal: (show: boolean) => void; // Function to toggle modal visibility
+    appointmentDetails: Appointment | null
+}
+
+export enum FormFieldType {
+    INPUT = "input",
+    TEXTAREA = "textarea",
+    PHONE_INPUT = "phoneInput",
+    CHECKBOX = "checkbox",
+    DATE_PICKER = "datePicker",
+    SELECT = "select",
+    SKELETON = "skeleton",
   }
 
 
 const CancelModal: React.FC<ScheduleModalProps> = ({
     showCancelModal,
+    appointmentDetails
 })=> {
 
+
+    const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false);
+    const form = useForm<z.infer<typeof CancelModalFormValidation>>({
+        resolver: zodResolver(CancelModalFormValidation),
+        defaultValues: {
+            cancel_reason: "",
+        },
+      });
+
+      const toaster = (message:string, type:string) => {
+        if(type == 'err') {
+          toast.error(message)
+        }else {
+          toast.success(message);
+        }
+      };
     
     const closeModal = ()=> {
         showCancelModal(false);   
     }
+
+    async function onSubmit(values: z.infer<typeof CancelModalFormValidation>) {
+        try {
+            setIsLoading(true);
+            
+            const appointData = {
+                ...values,
+                status: "cancelled"
+            };
+            
+            const response = await databases.updateDocument(
+                DATABASE_ID,
+                APPOINTMENT_COLLECTION_ID,
+                appointmentDetails!.$id,
+                appointData
+            );
+
+            setIsLoading(false);
+            if(response) {
+                toaster('successful', 'success');
+                closeModal();
+            }
+            
+        } catch (error) {
+            toaster(JSON.stringify(error), 'err');
+            setIsLoading(false);
+            console.error(error);
+        }
+      }
   
   return (
     <div
@@ -33,13 +135,29 @@ const CancelModal: React.FC<ScheduleModalProps> = ({
             </div>
         </div>
         <div className="body_schedule">
-            
-            <div className="inputs relative mb-5">
+            <div className="inputs relative mb-3">
                 <label htmlFor="">Reason for cancellation </label>
-                <textarea name="" id="" placeholder='ex: Urgent meeting came up'></textarea>
+                {/* <textarea name="" id="" placeholder='ex: Urgent meeting came up'></textarea> */}
             </div>
-            <button className='submut_schedule red'>Cancel appointment</button>
+            <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
+                <CustomFormField
+                fieldType={FormFieldType.TEXTAREA}
+                control={form.control}
+                name="cancel_reason"
+                label=""
+                placeholder="ex: Urgent meeting came up"
+                />
+
+
+                <SubmitButton classname='submut_schedule red' isLoading={isLoading}>Cancel appointment</SubmitButton>
+            </form>
+
+            <ToastContainer />
+            </Form>
+            {/* <button className='submut_schedule red'>Cancel appointment</button> */}
         </div>
+        
     </div>
     </div>
   )

@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { z } from "zod"
 import Image from "next/image"
 
@@ -18,51 +18,249 @@ import { Doctors, GenderOptions, IdentificationTypes, PatientFormDefaultValues }
 import { Label } from "@/components/ui/label"
 import { SelectItem } from "@/components/ui/select"
 import FileUploader from "@/components/FileUploader"
+import { ID, Query } from "appwrite";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
+import {databases, DATABASE_ID, PATIENT_COLLECTION_ID, BUCKET_ID, storage, ENDPOINT, PROJECT_ID, DOCTOR_COLLECTION_ID, API_KEY} from '../../lib/appwriteConfig2'
+import { InputFile } from "node-appwrite/file"
+import { DoctorType } from "@/types/appwrite.types"
 
 const RegisterForm = ({ user }: { user: User }) => {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
+    const [userDetails, setUserDetails] = useState({});
+    const [identificationType, setidentificationType] = useState<string>("")
+    const [gender, setGender] = useState<string>("")
+    const [docUrl, setDocUrl] = useState<string>("")
+    const [primaryPhysician, setPrimaryPhysician] = useState<string>("")
+    const [reselect, setReselect] = useState<boolean>(false)
+    const [doctorsInfo, setDoctorsInfo] = useState<DoctorType[]>([]);
+
+
+    
+
 
     const form = useForm<z.infer<typeof PatientFormValidation>>({
         resolver: zodResolver(PatientFormValidation),
         defaultValues: {
             ...PatientFormDefaultValues,
+            // primaryPhysician: "",
             name: "",
             email: "",
             phone: "",
-            gender: "other", // Ensure gender matches the expected type
+            gender: "male", 
         },
     })
 
-    async function onSubmit(values: z.infer<typeof PatientFormValidation>) {
-        setIsLoading(true);
-
-        let formData;
-
-        if (values.identificationDocument && values.identificationDocument.length > 0) {
-            const blobFile = new Blob([values.identificationDocument[0]], {
-                type: values.identificationDocument[0].type
-            })
-
-            formData = new FormData();
-            formData.append("blobFile", blobFile);
-            formData.append("fileName", values.identificationDocument[0].name);
+    const toaster = (message:string, type:string) => {
+        if(type == 'err') {
+          toast.error(message)
+        }else {
+          toast.success(message);
         }
+      };
+    
+    // async function onSubmit(values: z.infer<typeof PatientFormValidation>) {
+    //     // setIsLoading(true);
 
+    //     let formData;
+
+    //     if (values.identificationDocument && values.identificationDocument.length > 0) {
+    //         const blobFile = new Blob([values.identificationDocument[0]], {
+    //             type: values.identificationDocument[0].type
+    //         })
+
+    //         formData = new FormData();
+    //         formData.append("blobFile", blobFile);
+    //         formData.append("fileName", values.identificationDocument[0].name);
+    //     }
+
+    //     try {
+    //         const patientData = {
+    //             ...values,
+    //             // userId: user.$id,
+    //             birthDate: new Date(values.birthDate),
+    //             identificationDocument: formData,
+    //         }
+
+
+    //         // @ts-ignore
+    //         const patient = await registerPatient(patientData);
+
+    //         if (patient) router.push(`/patients/${user.$id}/new-appointment`);
+    //     } catch (error) {
+    //         console.error(error);
+    //     }
+    // }
+
+
+    async function onSubmit(values: z.infer<typeof PatientFormValidation>) {
+        let fileToUpload: File | undefined;
+    
+        
+        if (values.identificationDocument && values.identificationDocument.length > 0) {
+            fileToUpload = values.identificationDocument[0]; // Directly assign the File object
+        }
+    
+        if (!BUCKET_ID || !PROJECT_ID || !DATABASE_ID || !PATIENT_COLLECTION_ID) {
+            console.error("Required environment variables are missing.");
+            return;
+        }
+    
+        setIsLoading(true);
+    
         try {
-            const patientData = {
-                ...values,
-                userId: user.$id,
-                birthDate: new Date(values.birthDate),
-                identificationDocument: formData,
+            let fileUrl = "";
+            if (fileToUpload) {
+                // Upload file
+                const uploadedFile = await storage.createFile(
+                    BUCKET_ID,
+                    ID.unique(),
+                    fileToUpload
+                );
+                fileUrl = `${ENDPOINT}/storage/buckets/${BUCKET_ID}/files/${uploadedFile.$id}/view?project=${PROJECT_ID}`;
+    
+                console.log("File uploaded successfully:", uploadedFile);
+                console.log("File URL:", fileUrl);
+            } else {
+                console.warn("No file selected for upload.");
             }
+    
+    
+            const localInfo = localStorage.getItem("userInfo");
+            if (localInfo) {
+                try {
+                    const parsedInfo = JSON.parse(localInfo);
 
-            // @ts-ignore
-            const patient = await registerPatient(patientData);
+                    
+                    // Prepare patient data with the uploaded file URL
+                    const patientData = {
+                        ...values,
+                        primaryPhysician: doctorsInfo.filter((doc)=> doc.name == form.getValues("primaryPhysician"))[0].$id,
+                        birthDate: new Date(values.birthDate),
+                        identificationDocument: fileUrl ? fileUrl : parsedInfo.identificationDocument,
+                    };
+                    
+                    // Store patient data in the database
+                    const response = await databases.updateDocument(
+                        DATABASE_ID,
+                        PATIENT_COLLECTION_ID,
+                        parsedInfo.$id,
+                        patientData
+                    );
 
-            if (patient) router.push(`/patients/${user.$id}/new-appointment`);
+                    setIsLoading(false);
+
+                    toaster('successful', 'success');
+
+
+
+                    
+                    if (response) router.push(`/patients/${parsedInfo.$id}/new-appointment`);
+            
+                    // console.log("Patient data:", patientData);
+                    // console.log("Database response:", response);
+                    getUsetInfo();
+
+                }catch (error) {
+                    toaster(JSON.stringify(error), 'err');
+
+                    console.error("Error fetching user info:", error);
+                }
+            }
+    
         } catch (error) {
+            setIsLoading(false);
+            toaster(JSON.stringify(error), 'err');
+
+
+            console.error("Error uploading file or storing data:", error);
+        }
+    }
+    
+
+    useEffect(()=> {
+        getUsetInfo();
+        getDoctors();
+    }, [])
+
+    const getDoctors = async()=> {
+        try {
+            let response = await databases.listDocuments(
+                DATABASE_ID,
+                DOCTOR_COLLECTION_ID,
+                
+            );
+            const doctors2: DoctorType[] = response.documents.map((doc) => ({
+                $id: doc.$id,
+                name: doc.name,
+                image: doc.image,
+                area_of_specialization: doc.area_of_specialization,
+                hospital_location: doc.hospital_location,
+                hospital_name: doc.hospital_name,
+            }));
+    
+            // Set the state with the transformed data
+            setDoctorsInfo(doctors2);
+            console.log(response.documents, 'active')
+        } catch (error) {
+            toaster(JSON.stringify(error), 'err');
+
+            setIsLoading(false);
             console.error(error);
+        }
+    }
+
+    const getUsetInfo =async()=> {
+        const localInfo = localStorage.getItem("userInfo");
+        if (localInfo) {
+            try {
+                const parsedInfo = JSON.parse(localInfo);
+                const checkInfo = await databases.listDocuments(
+                    DATABASE_ID,
+                    PATIENT_COLLECTION_ID,
+                    [Query.equal("email", [parsedInfo.email])]
+                );
+
+                if (checkInfo.documents.length > 0) {
+                    const userInfo = checkInfo.documents[0];
+                    setUserDetails(userInfo);
+                    localStorage.setItem("userInfo", JSON.stringify(userInfo));
+
+                    setidentificationType(form.getValues("identificationType") || "")
+                    setGender(form.getValues("gender") || "male")
+                    setDocUrl(userInfo.identificationDocument || "")
+                    setPrimaryPhysician(userInfo.primaryPhysician.name || "")
+
+                    // Update form values
+                    form.reset({ ...form.getValues(), email: userInfo.email, name: userInfo.name, phone: userInfo.phone, 
+                        address: userInfo.address ?? "",
+                        occupation: userInfo.occupation ?? "",
+                        emergencyContactName: userInfo.emergencyContactName ?? "",
+                        emergencyContactNumber: userInfo.emergencyContactNumber ?? "",
+                        primaryPhysician: userInfo.primaryPhysician.name ?? "",
+                        insuranceProvider: userInfo.insuranceProvider ?? "",
+                        insurancePolicyNumber: userInfo.insurancePolicyNumber ?? "",
+                        allergies: userInfo.allergies ?? "",
+                        currentMedication: userInfo.currentMedication ?? "",
+                        familyMedicalHistory: userInfo.familyMedicalHistory ?? "",
+                        pastMedicalHistory: userInfo.pastMedicalHistory ?? "",
+                        identificationType: userInfo.identificationType ?? "",
+                        identificationNumber: userInfo.identificationNumber ?? "",
+                        treatmentConsent: userInfo.treatmentConsent ?? false,
+                        disclosureConsent: userInfo.disclosureConsent ?? false,
+                        privacyConsent: userInfo.privacyConsent ?? false,
+                        birthDate: userInfo.birthDate ?? new Date(Date.now()),
+                        gender: userInfo.gender ?? "", });
+
+                }
+            } catch (error) {
+                toaster(JSON.stringify(error), 'err');
+
+                console.error("Error fetching user info:", error);
+            }
         }
     }
 
@@ -128,7 +326,10 @@ const RegisterForm = ({ user }: { user: User }) => {
                                 <RadioGroup
                                     className="flex h-11 gap-6 xl:justify-between"
                                     onValueChange={field.onChange}
-                                    defaultValue={field.value}
+                                    // defaultValue={field.value}
+                                    // defaultValue={gender}
+                                    value={field.value || "male"} 
+                                
                                 >
                                     {GenderOptions.map((option) => (
                                         <div key={option} className="radio-group">
@@ -192,17 +393,21 @@ const RegisterForm = ({ user }: { user: User }) => {
                     </div>
                 </section>
 
+
                 <CustomFormField
                     fieldType={FormFieldType.SELECT}
                     control={form.control}
                     name="primaryPhysician"
                     label="Primary Physician"
                     placeholder="Select a physician"
+                    defaultValue={primaryPhysician}
+                    // defaultValue={""}
                 >
-                    {Doctors.map((doctor) => (
+                    {doctorsInfo.map((doctor) => (
                         <SelectItem
                             key={doctor.name}
                             value={doctor.name}
+                            
                         >
                             <div className="flex cursor-pointer items-center gap-2">
                                 <Image
@@ -283,7 +488,7 @@ const RegisterForm = ({ user }: { user: User }) => {
                     control={form.control}
                     name="identificationType"
                     label="Identification type"
-                    placeholder="Select an identification type"
+                    placeholder={identificationType!=""?identificationType: "Select an identification type"}
                 >
                     {IdentificationTypes.map((type) => (
                         <SelectItem
@@ -309,7 +514,24 @@ const RegisterForm = ({ user }: { user: User }) => {
                     name="identificationDocument"
                     label="Scanned copy of identification document"
                     renderSkeleton={(field) => (
-                        <FormControl>
+                        (docUrl !== "" && !reselect) ?
+                            (
+                                <div className="relative group">
+                                <Image
+                                    onClick={() => setReselect(true)}
+                                    src={docUrl}
+                                    alt="uploaded image"
+                                    width={1000}
+                                    height={1000}
+                                    className="max-h-[400px] overflow-hidden object-cover"
+                                />
+                                
+                                {/* Tooltip on hover */}
+                                <div onClick={() => setReselect(true)} className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                                    Click to reselect
+                                </div>
+                                </div>
+                          ):  <FormControl>
                             <FileUploader
                                 files={field.value}
                                 onChange={field.onChange}
@@ -351,6 +573,9 @@ const RegisterForm = ({ user }: { user: User }) => {
                     Get Started
                 </SubmitButton>
             </form>
+
+            <ToastContainer />
+
         </Form>
     )
 }
