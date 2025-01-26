@@ -18,6 +18,7 @@ import Image from 'next/image';
 import { getAppointmentSchema } from "@/lib/validation";
 import {databases, DATABASE_ID, PATIENT_COLLECTION_ID, BUCKET_ID, storage, ENDPOINT, PROJECT_ID, DOCTOR_COLLECTION_ID, APPOINTMENT_COLLECTION_ID} from '../../lib/appwriteConfig2'
 import { DoctorType } from "@/types/appwrite.types"
+import { Query } from 'appwrite';
 
 
 
@@ -153,6 +154,7 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
             let response = await databases.listDocuments(
                 DATABASE_ID,
                 DOCTOR_COLLECTION_ID,  
+                [Query.isNotNull("image")]
             );
             const doctors2: DoctorType[] = response.documents.map((doc) => ({
                 $id: doc.$id,

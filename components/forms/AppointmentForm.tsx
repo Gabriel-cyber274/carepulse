@@ -165,8 +165,12 @@ const AppointmentForm = ({
 
 
     useEffect(()=> {
-        getUsetInfo();
-        getDoctors();
+        if(localStorage.userInfo == undefined) {
+            router.replace('/');
+        }else {
+            getUsetInfo();
+            getDoctors();
+        }
     }, [])
 
     const getDoctors = async()=> {
@@ -174,6 +178,7 @@ const AppointmentForm = ({
             let response = await databases.listDocuments(
                 DATABASE_ID,
                 DOCTOR_COLLECTION_ID,  
+                [Query.isNotNull("image")]
             );
             const doctors2: DoctorType[] = response.documents.map((doc) => ({
                 $id: doc.$id,

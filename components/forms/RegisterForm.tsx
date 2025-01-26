@@ -182,8 +182,12 @@ const RegisterForm = ({ user }: { user: User }) => {
     
 
     useEffect(()=> {
-        getUsetInfo();
-        getDoctors();
+        if(localStorage.userInfo == undefined) {
+            router.replace('/');
+        }else {
+            getDoctors();
+            getUsetInfo();
+        }
     }, [])
 
     const getDoctors = async()=> {
@@ -191,7 +195,7 @@ const RegisterForm = ({ user }: { user: User }) => {
             let response = await databases.listDocuments(
                 DATABASE_ID,
                 DOCTOR_COLLECTION_ID,
-                
+                [Query.isNotNull("image")]
             );
             const doctors2: DoctorType[] = response.documents.map((doc) => ({
                 $id: doc.$id,
@@ -407,7 +411,6 @@ const RegisterForm = ({ user }: { user: User }) => {
                         <SelectItem
                             key={doctor.name}
                             value={doctor.name}
-                            
                         >
                             <div className="flex cursor-pointer items-center gap-2">
                                 <Image

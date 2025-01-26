@@ -7,6 +7,8 @@ import CancelModal from './CancelModal';
 import { DATABASE_ID, databases, DOCTOR_COLLECTION_ID, APPOINTMENT_COLLECTION_ID } from '@/lib/appwriteConfig2';
 import { Query } from 'appwrite';
 import { toast,} from 'react-toastify';
+import { useRouter } from "next/navigation";
+
 import 'react-toastify/dist/ReactToastify.css';
 
 interface UserDetails {
@@ -55,6 +57,8 @@ interface UserDetails {
   
 
 function AdminMain() {
+    const router = useRouter();
+
     const [scheduleModal, showScheduleModal] = useState(false);
     const [cancelModal, showCancelModal] = useState(false);
     const [appointment, setAppointment] = useState<Appointment[]>([]);
@@ -99,8 +103,12 @@ function AdminMain() {
     }
 
     useEffect(()=> {
-        getUsetInfo();
-        getAppointment();
+        if(localStorage.doctorInfo == undefined) {
+            router.replace('/doctor');
+        }else {
+            getUsetInfo();
+            getAppointment();
+        }
       }, [cancelModal, scheduleModal])
 
       const getAppointment = async()=> {

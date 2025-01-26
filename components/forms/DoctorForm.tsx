@@ -156,7 +156,11 @@ const DoctorForm = ({ user }: { user: User }) => {
   }
 
   useEffect(()=> {
-    getUsetInfo();
+    if(localStorage.doctorInfo == undefined) {
+      router.replace('/doctor');
+    } else {
+      getUsetInfo();
+    }
   }, [])
 
 
