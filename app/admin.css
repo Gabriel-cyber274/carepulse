@@ -100,9 +100,7 @@
     /* height: 152px; */
     padding: 27px;
     border-radius: 12px;
-    opacity: 0px;
-
-
+    /* opacity: 0px; */
 }
 .main_admin .main_body .cont_first .appoints_boxes .box .first {
     display: flex;
@@ -170,7 +168,7 @@
     height: 32px;
     gap: 0px;
     border-radius: 200px;
-    opacity: 0px;
+    /* opacity: 0px; */
     background-color: #B6F09C;
     display: flex;
     justify-content: center;
@@ -184,7 +182,7 @@
     padding: 2px 8px 2px 6px;
     gap: 4px;
     border-radius: 16px;
-    opacity: 0px;
+    /* opacity: 0px; */
     background-color: #0D2A1F;
     display: flex;
     align-items: center;
@@ -207,7 +205,7 @@
     height: 32px;
     gap: 0px;
     border-radius: 200px;
-    opacity: 0px;
+    /* opacity: 0px; */
 }
 .main_admin .main_body .cont_first .appoint_table .table_body .dr_pic {
     display: flex;
@@ -357,7 +355,7 @@
     text-underline-position: from-font;
     text-decoration-skip-ink: none;
     color: #76828D;
-    opacity: 0px;
+    /* opacity: 0px; */
     outline: none;
 }
 .schedule_modal_cont .main_body_schedule .body_schedule .prefix_input input{
@@ -379,7 +377,7 @@
     text-decoration-skip-ink: none;
     color: #76828D;
     outline: none;
-    opacity: 0px;   
+    /* opacity: 0px;    */
 }
 .schedule_modal_cont .main_body_schedule .body_schedule .prefix_input{
     position: relative;
@@ -396,7 +394,7 @@
     padding: 8px 24px 8px 24px;
     gap: 12px;
     border-radius: 8px;
-    opacity: 0px;
+    /* opacity: 0px; */
     background-color: #24AE7C;
     font-family: Plus Jakarta Sans;
     font-size: 16px;
@@ -453,14 +451,14 @@
     border-radius: 5px;
     display: flex;
     align-items: center;
-    opacity: 0px;
+    /* opacity: 0px; */
 }
 .search_main_cont .main_input .first_search .selected_dr img {
     width: 24px;
     height: 24px;
     gap: 0px;
     border-radius: 20px;
-    opacity: 0px;
+    /* opacity: 0px; */
 }
 .search_main_cont .main_input .first_search .selected_dr h4 {
     font-family: Plus Jakarta Sans;
@@ -498,7 +496,7 @@
     height: 24px;
     gap: 0px;
     border-radius: 20px;
-    opacity: 0px;
+    /* opacity: 0px; */
 }
 
 
@@ -603,14 +601,14 @@
     padding: 10px;
     gap: 6px;
     border-radius: 5px;
-    opacity: 0px;
+    /* opacity: 0px; */
 }
 .success_main_cont .center_stuff .last_part .dr img {
     width: 24px;
     height: 24px;
     gap: 0px;
     border-radius: 20px;
-    opacity: 0px;
+    /* opacity: 0px; */
 }
 .success_main_cont .center_stuff .last_part .dr h3 {
     font-family: Plus Jakarta Sans;
