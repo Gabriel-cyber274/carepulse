@@ -16,7 +16,7 @@ function page() {
                     </svg>
                 </div>
                 <h1>Your <span>appointment request</span> has been successfully submitted!</h1>
-                <h4>We'll be in touch shortly to confirm.</h4>
+                <h4>We&apos;ll be in touch shortly to confirm.</h4>
 
                 <div className="last_part">
                     <h2>Requested appointment details:</h2>
