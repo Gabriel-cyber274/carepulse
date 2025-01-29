@@ -42,4 +42,5 @@ export interface DoctorType {
   area_of_specialization: string;
   hospital_location: string;
   hospital_name: string;
+  linkedin: string;
 }

@@ -22,17 +22,17 @@ export const DoctorFormValidation = z.object({
     .refine((phone) => /^\+\d{10,15}$/.test(phone), "Invalid phone number"),
     hospital_name: z
     .string()
-    .min(2, "Name must be at least 2 characters")
-    .max(50, "Name must be at most 50 characters"),
+    .min(2, "Name must be at least 2 characters"),
     hospital_location: z
     .string()
-    .min(2, "Name must be at least 2 characters")
-    .max(50, "Name must be at most 50 characters"),
+    .min(2, "Name must be at least 2 characters"),
     area_of_specialization: z
     .string()
-    .min(2, "Name must be at least 2 characters")
-    .max(50, "Name must be at most 50 characters"),
+    .min(2, "Name must be at least 2 characters"),
     image: z.custom<File[]>().optional(),
+    linkedin: z
+    .string()
+    .min(2, "Name must be at least 2 characters"),
 });
 
 export const CancelModalFormValidation = z.object({

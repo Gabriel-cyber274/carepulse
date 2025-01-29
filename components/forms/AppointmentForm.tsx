@@ -45,6 +45,12 @@ const AppointmentForm = ({
     const [reselect, setReselect] = useState<boolean>(false)
     const [doctorsInfo, setDoctorsInfo] = useState<DoctorType[]>([]);
 
+    
+    const [hoveredDoctor, setHoveredDoctor] = useState<DoctorType | null>(null);
+
+    const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+    const [hideTimeout, setHideTimeout] = useState<NodeJS.Timeout | null>(null);
+
 
     const AppointmentFormValidation = getAppointmentSchema(type)
 
@@ -187,6 +193,7 @@ const AppointmentForm = ({
                 area_of_specialization: doc.area_of_specialization,
                 hospital_location: doc.hospital_location,
                 hospital_name: doc.hospital_name,
+                linkedin: doc.linkedin
             }));
     
             // Set the state with the transformed data
@@ -233,31 +240,71 @@ const AppointmentForm = ({
 
                 {type !== "cancel" && (
                     <>
+
+            <div className="relative">
                         <CustomFormField
                             fieldType={FormFieldType.SELECT}
                             control={form.control}
                             name="primaryPhysician"
                             label="Doctor"
-                            placeholder="Select a doctor"
+                            placeholder="Select a Doctor"
+                            defaultValue={primaryPhysician}
                         >
                             {doctorsInfo.map((doctor) => (
-                                <SelectItem
+                                <div
                                     key={doctor.name}
-                                    value={doctor.name}
+
+                                    onMouseEnter={(e) => {
+                                        if (hideTimeout) clearTimeout(hideTimeout); // Cancel hiding timeout
+                                        setHoveredDoctor(doctor);
+                                        const rect = e.currentTarget.getBoundingClientRect();
+                                        setTooltipPosition({ x: rect.right + 10, y: rect.top });
+                                    }}
+                                    onMouseLeave={() => {
+                                        const timeout = setTimeout(() => setHoveredDoctor(null), 300); // Short delay before hiding
+                                        setHideTimeout(timeout);
+                                    }}
+                                    className="relative"
+                                    style={{width: 'max-content'}}
                                 >
-                                    <div className="flex cursor-pointer items-center gap-2">
-                                        <Image
-                                            src={doctor.image}
-                                            alt={doctor.name}
-                                            width={32}
-                                            height={32}
-                                            className="rounded-full border border-dark-500"
-                                        />
-                                        <p>{doctor.name}</p>
-                                    </div>
-                                </SelectItem>
+                                    <SelectItem value={doctor.name}>
+                                        <div className="flex cursor-pointer items-center gap-2">
+                                            <Image
+                                                src={doctor.image}
+                                                alt={doctor.name}
+                                                width={32}
+                                                height={32}
+                                                className="rounded-full border border-dark-500"
+                                            />
+                                            <p>{doctor.name}</p>
+                                        </div>
+                                    </SelectItem>
+                                </div>
                             ))}
                         </CustomFormField>
+
+                        {/* Tooltip - Stays visible when hovered */}
+                        {hoveredDoctor && (
+                            <div
+                                className="fixed bg-white shadow-lg border border-gray-300 p-2 rounded-md z-50 w-48 pointer-events-auto"
+                                style={{ top: tooltipPosition.y, left: tooltipPosition.x, zIndex: 1000 }}
+                                onMouseEnter={() => {
+                                    if (hideTimeout) clearTimeout(hideTimeout); // Prevent hiding when hovering over the tooltip
+                                }}
+                                onMouseLeave={() => setHoveredDoctor(null)} // Hide when leaving the tooltip
+                            >
+                                <p className="text-sm font-medium text-black">{hoveredDoctor.name}</p>
+                                <a
+                                    href={hoveredDoctor.linkedin}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-500 underline text-xs"
+                                >
+                                    View Profile
+                                </a>
+                            </div>
+                        )}
+                    </div>
 
                         <CustomFormField
                             fieldType={FormFieldType.DATE_PICKER}

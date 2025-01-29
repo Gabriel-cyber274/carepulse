@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form"
 import { useEffect, useState } from "react"
 import { z } from "zod"
 import Image from "next/image"
+import * as Popover from '@radix-ui/react-popover';
 
 import { Form, FormControl } from "@/components/ui/form"
 import CustomFormField from "@/components/CustomFormField"
@@ -23,6 +24,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
+
+
 import {databases, DATABASE_ID, PATIENT_COLLECTION_ID, BUCKET_ID, storage, ENDPOINT, PROJECT_ID, DOCTOR_COLLECTION_ID, API_KEY} from '../../lib/appwriteConfig2'
 import { InputFile } from "node-appwrite/file"
 import { DoctorType } from "@/types/appwrite.types"
@@ -37,6 +40,11 @@ const RegisterForm = ({ user }: { user: User }) => {
     const [primaryPhysician, setPrimaryPhysician] = useState<string>("")
     const [reselect, setReselect] = useState<boolean>(false)
     const [doctorsInfo, setDoctorsInfo] = useState<DoctorType[]>([]);
+
+    const [hoveredDoctor, setHoveredDoctor] = useState<DoctorType | null>(null);
+
+    const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+    const [hideTimeout, setHideTimeout] = useState<NodeJS.Timeout | null>(null);
 
 
     
@@ -204,6 +212,7 @@ const RegisterForm = ({ user }: { user: User }) => {
                 area_of_specialization: doc.area_of_specialization,
                 hospital_location: doc.hospital_location,
                 hospital_name: doc.hospital_name,
+                linkedin: doc.linkedin
             }));
     
             // Set the state with the transformed data
@@ -398,20 +407,33 @@ const RegisterForm = ({ user }: { user: User }) => {
                 </section>
 
 
-                <CustomFormField
-                    fieldType={FormFieldType.SELECT}
-                    control={form.control}
-                    name="primaryPhysician"
-                    label="Primary Physician"
-                    placeholder="Select a physician"
-                    defaultValue={primaryPhysician}
-                    // defaultValue={""}
-                >
-                    {doctorsInfo.map((doctor) => (
-                        <SelectItem
-                            key={doctor.name}
-                            value={doctor.name}
-                        >
+                <div className="relative">
+            <CustomFormField
+                fieldType={FormFieldType.SELECT}
+                control={form.control}
+                name="primaryPhysician"
+                label="Primary Physician"
+                placeholder="Select a physician"
+                defaultValue={primaryPhysician}
+            >
+                {doctorsInfo.map((doctor) => (
+                    <div
+                        key={doctor.name}
+
+                        onMouseEnter={(e) => {
+                            if (hideTimeout) clearTimeout(hideTimeout); // Cancel hiding timeout
+                            setHoveredDoctor(doctor);
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            setTooltipPosition({ x: rect.right + 10, y: rect.top });
+                        }}
+                        onMouseLeave={() => {
+                            const timeout = setTimeout(() => setHoveredDoctor(null), 300); // Short delay before hiding
+                            setHideTimeout(timeout);
+                        }}
+                        className="relative"
+                        style={{width: 'max-content'}}
+                    >
+                        <SelectItem value={doctor.name}>
                             <div className="flex cursor-pointer items-center gap-2">
                                 <Image
                                     src={doctor.image}
@@ -423,8 +445,32 @@ const RegisterForm = ({ user }: { user: User }) => {
                                 <p>{doctor.name}</p>
                             </div>
                         </SelectItem>
-                    ))}
-                </CustomFormField>
+                    </div>
+                ))}
+            </CustomFormField>
+
+            {/* Tooltip - Stays visible when hovered */}
+            {hoveredDoctor && (
+                <div
+                    className="fixed bg-white shadow-lg border border-gray-300 p-2 rounded-md z-50 w-48 pointer-events-auto"
+                    style={{ top: tooltipPosition.y, left: tooltipPosition.x, zIndex: 1000 }}
+                    onMouseEnter={() => {
+                        if (hideTimeout) clearTimeout(hideTimeout); // Prevent hiding when hovering over the tooltip
+                    }}
+                    onMouseLeave={() => setHoveredDoctor(null)} // Hide when leaving the tooltip
+                >
+                    <p className="text-sm font-medium text-black">{hoveredDoctor.name}</p>
+                    <a
+                        href={hoveredDoctor.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 underline text-xs"
+                    >
+                        View Profile
+                    </a>
+                </div>
+            )}
+        </div>
 
                 <div className="flex flex-col gap-6 xl:flex-row">
                     <CustomFormField

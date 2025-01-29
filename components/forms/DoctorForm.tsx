@@ -188,6 +188,7 @@ const DoctorForm = ({ user }: { user: User }) => {
                     hospital_name: userInfo.hospital_name ?? "",
                     hospital_location: userInfo.hospital_location ?? "",
                     area_of_specialization: userInfo.area_of_specialization ?? "",
+                    linkedin: userInfo.linkedin ?? ""
                 });
 
             }
@@ -248,6 +249,14 @@ const DoctorForm = ({ user }: { user: User }) => {
           name="hospital_location"
           label="hospital location"
           placeholder="enter hospital location"
+        />
+
+        <CustomFormField
+          fieldType={FormFieldType.INPUT}
+          control={form.control}
+          name="linkedin"
+          label="linkedin url"
+          placeholder="linkedin url"
         />
 
         <CustomFormField
