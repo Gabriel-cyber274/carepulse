@@ -163,6 +163,7 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
                 area_of_specialization: doc.area_of_specialization,
                 hospital_location: doc.hospital_location,
                 hospital_name: doc.hospital_name,
+                linkedin: doc.linkedin
             }));
     
             // Set the state with the transformed data
