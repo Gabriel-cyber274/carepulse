@@ -41,6 +41,7 @@
 .main_admin_nav nav .cont .second img {
     width: 32px;
     height: 32px;
+    object-fit: cover;
     border-radius: 100%;
 }
 .main_admin .main_body {

@@ -32,7 +32,11 @@ export const DoctorFormValidation = z.object({
     image: z.custom<File[]>().optional(),
     linkedin: z
     .string()
-    .min(2, "Name must be at least 2 characters"),
+    .min(2, "Name must be at least 2 characters")
+    .regex(
+      /^(https?:\/\/)?(www\.)?linkedin\.com\/(in|company)\/[a-zA-Z0-9-_%]+\/?$/,
+      "Invalid LinkedIn URL"
+    ),
 });
 
 export const CancelModalFormValidation = z.object({
