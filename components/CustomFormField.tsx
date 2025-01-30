@@ -109,7 +109,8 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
                     <Select
                         onValueChange={field.onChange}
                         // defaultValue={field.value}
-                        value={field.value || defaultValue}
+                        // value={field.value || defaultValue}
+                        value={field.value} 
                         // value={field.value || ""} 
                     >
                         <FormControl>

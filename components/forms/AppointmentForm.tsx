@@ -286,6 +286,7 @@ const AppointmentForm = ({
                         {/* Tooltip - Stays visible when hovered */}
                         {hoveredDoctor && (
                             <div
+                                onClick={() => setHoveredDoctor(null)}
                                 className="fixed bg-white shadow-lg border border-gray-300 p-2 rounded-md z-50 w-48 pointer-events-auto"
                                 style={{ top: tooltipPosition.y, left: tooltipPosition.x, zIndex: 1000 }}
                                 onMouseEnter={() => {

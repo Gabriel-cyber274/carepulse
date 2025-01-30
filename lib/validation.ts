@@ -71,7 +71,7 @@ export const PatientFormValidation = z.object({
       (emergencyContactNumber) => /^\+\d{10,15}$/.test(emergencyContactNumber),
       "Invalid phone number"
     ),
-  primaryPhysician: z.string().min(2, "Select at least one doctor"),
+  primaryPhysician: z.string().min(1, "Select at least one doctor"),
   insuranceProvider: z
     .string()
     .min(2, "Insurance name must be at least 2 characters")

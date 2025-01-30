@@ -54,7 +54,7 @@ const RegisterForm = ({ user }: { user: User }) => {
         resolver: zodResolver(PatientFormValidation),
         defaultValues: {
             ...PatientFormDefaultValues,
-            // primaryPhysician: "",
+            primaryPhysician: "",
             name: "",
             email: "",
             phone: "",
@@ -196,7 +196,12 @@ const RegisterForm = ({ user }: { user: User }) => {
             getDoctors();
             getUsetInfo();
         }
-    }, [])
+    }, [primaryPhysician])
+
+    
+    if (isLoading) {
+        return <div>Loading...</div>; // Show a loading state
+    }
 
     const getDoctors = async()=> {
         try {
@@ -253,7 +258,9 @@ const RegisterForm = ({ user }: { user: User }) => {
                         occupation: userInfo.occupation ?? "",
                         emergencyContactName: userInfo.emergencyContactName ?? "",
                         emergencyContactNumber: userInfo.emergencyContactNumber ?? "",
+
                         primaryPhysician: userInfo.primaryPhysician.name ?? "",
+
                         insuranceProvider: userInfo.insuranceProvider ?? "",
                         insurancePolicyNumber: userInfo.insurancePolicyNumber ?? "",
                         allergies: userInfo.allergies ?? "",
@@ -452,6 +459,7 @@ const RegisterForm = ({ user }: { user: User }) => {
             {/* Tooltip - Stays visible when hovered */}
             {hoveredDoctor && (
                 <div
+                    onClick={() => setHoveredDoctor(null)}
                     className="fixed bg-white shadow-lg border border-gray-300 p-2 rounded-md z-50 w-48 pointer-events-auto"
                     style={{ top: tooltipPosition.y, left: tooltipPosition.x, zIndex: 1000 }}
                     onMouseEnter={() => {
