@@ -343,7 +343,7 @@ const DoctorForm = ({ user }: { user: User }) => {
 
                 </div>
 
-                <a href="/assets/images/doctor_policy.pdf" target="_blank" style={{paddingTop: '10px', color: '#5353d9', textDecoration: 'underline'}}>view privacy policy</a>
+                <a href="/assets/images/Privacy Policy for Doctors (1).pdf" target="_blank" style={{paddingTop: '10px', color: '#5353d9', textDecoration: 'underline'}}>view privacy policy</a>
 
 
         <SubmitButton isLoading={isLoading}>Get Started</SubmitButton>
