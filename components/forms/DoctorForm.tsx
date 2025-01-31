@@ -188,7 +188,10 @@ const DoctorForm = ({ user }: { user: User }) => {
                     hospital_name: userInfo.hospital_name ?? "",
                     hospital_location: userInfo.hospital_location ?? "",
                     area_of_specialization: userInfo.area_of_specialization ?? "",
-                    linkedin: userInfo.linkedin ?? ""
+                    linkedin: userInfo.linkedin ?? "",
+                    quality_treatment: userInfo.quality_treatment ?? false,
+                    correct_details: userInfo.correct_details ?? false,
+                    privacy_policy: userInfo.privacy_policy ?? false,
                 });
 
             }
@@ -309,6 +312,39 @@ const DoctorForm = ({ user }: { user: User }) => {
                         </FormControl>
             )}
         />
+
+<section className="space-y-6">
+                    <div className="mb-9 space-y-1">
+                        <h2 className="sub-header">Consent and Privacy</h2>
+                    </div>
+                </section>
+
+                <CustomFormField
+                    fieldType={FormFieldType.CHECKBOX}
+                    control={form.control}
+                    name="quality_treatment"
+                    label="I consent to providing medical treatment to patients in accordance with professional and legal standards."
+                />
+
+                <CustomFormField
+                    fieldType={FormFieldType.CHECKBOX}
+                    control={form.control}
+                    name="correct_details"
+                    label="I consent to the use of my professional and contact information for verification and operational purposes."
+                />
+
+                <div style={{marginBottom: '10px'}}>
+                  <CustomFormField
+                      fieldType={FormFieldType.CHECKBOX}
+                      control={form.control}
+                      name="privacy_policy"
+                      label="I acknowledge that I have reviewed and agree to the privacy policy and data protection guidelines."
+                  />
+
+                </div>
+
+                <a href="/assets/images/doctor_policy.pdf" target="_blank" style={{paddingTop: '10px', color: '#5353d9', textDecoration: 'underline'}}>view privacy policy</a>
+
 
         <SubmitButton isLoading={isLoading}>Get Started</SubmitButton>
       </form>

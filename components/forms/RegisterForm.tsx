@@ -617,12 +617,16 @@ const RegisterForm = ({ user }: { user: User }) => {
                     label="I consent to the use of my health information for treatment."
                 />
 
-                <CustomFormField
-                    fieldType={FormFieldType.CHECKBOX}
-                    control={form.control}
-                    name="privacyConsent"
-                    label="I acknowledge that I have reviewed and agree to the privacy policy."
-                />
+                <div style={{marginBottom: '10px'}}>
+                    <CustomFormField
+                        fieldType={FormFieldType.CHECKBOX}
+                        control={form.control}
+                        name="privacyConsent"
+                        label="I acknowledge that I have reviewed and agree to the privacy policy."
+                    />
+                </div>
+                
+                <a href="/assets/images/patient_policy.pdf" target="_blank" style={{paddingTop: '10px', color: '#5353d9', textDecoration: 'underline'}}>view privacy policy</a>
 
                 <SubmitButton
                     isLoading={isLoading}

@@ -37,6 +37,24 @@ export const DoctorFormValidation = z.object({
       /^(https?:\/\/)?(www\.)?linkedin\.com\/(in|company)\/[a-zA-Z0-9-_%]+\/?$/,
       "Invalid LinkedIn URL"
     ),
+    quality_treatment: z
+    .boolean()
+    .default(false)
+    .refine((value) => value === true, {
+      message: "You must consent to providing medical treatment to patients in accordance with professional and legal standards.",
+    }),
+    correct_details: z
+    .boolean()
+    .default(false)
+    .refine((value) => value === true, {
+      message: "You must consent to the use of my professional and contact information for verification and operational purposes.",
+    }),
+    privacy_policy: z
+    .boolean()
+    .default(false)
+    .refine((value) => value === true, {
+      message: "You must consent to have reviewed and agree to the privacy policy and data protection guidelines.",
+    }),
 });
 
 export const CancelModalFormValidation = z.object({
