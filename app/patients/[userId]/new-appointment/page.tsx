@@ -1,6 +1,7 @@
 import AppointmentForm from "@/components/forms/AppointmentForm";
 import { getPatient } from "@/lib/actions/patient.actions";
 import Image from "next/image";
+import Link from "next/link";
 
 
 export default async function NewAppointment({ params: { userId } }: SearchParamProps) {
@@ -26,6 +27,7 @@ export default async function NewAppointment({ params: { userId } }: SearchParam
         <div className="flex h-screen max-h-screen">
             <section className="remove-scrollbar container my-auto">
                 <div className="sub-container max-w-[860px] flex-1 justify-between">
+                <Link href={'/'}>
                     <Image
                         src="/assets/icons/logo-full.svg"
                         alt="CarePulse Logo"
@@ -33,6 +35,7 @@ export default async function NewAppointment({ params: { userId } }: SearchParam
                         width={1000}
                         className="mb-12 h-10 w-fit"
                     />
+                    </Link>
 
                     <AppointmentForm
                         type="create"

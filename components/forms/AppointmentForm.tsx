@@ -119,14 +119,11 @@ const AppointmentForm = ({
                 setIsLoading(false);
 
                 if(response) {
-                    toaster('successful', 'success');
                     form.reset();
-                    setTimeout(() => {
-                        router.back();
-                    
-                    }, 3000);
+                    localStorage.setItem('appointmentDoc', JSON.stringify(doctorsInfo.filter((doc)=> doc.name == values.primaryPhysician)[0]))
+                    localStorage.setItem('scheduleTIme', JSON.stringify(new Date(values.schedule)))
+                    router.push('/success')   
                 }
-                console.log(response, 'active');
 
 
 

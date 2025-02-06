@@ -2,6 +2,7 @@ import Image from "next/image"
 
 import RegisterForm from "@/components/forms/RegisterForm"
 import { getUser } from "@/lib/actions/patient.actions"
+import Link from "next/link";
 
 const Register = async ({ params: { userId } }: SearchParamProps) => {
     const user = await getUser(userId);
@@ -10,6 +11,7 @@ const Register = async ({ params: { userId } }: SearchParamProps) => {
         <div className="flex h-screen max-h-screen">
             <section className="remove-scrollbar container">
                 <div className="sub-container max-w-[860px] flex-1 flex-col py-10">
+                <Link href={'/'}>
                     <Image
                         src="/assets/icons/logo-full.svg"
                         alt="CarePulse Logo"
@@ -17,6 +19,7 @@ const Register = async ({ params: { userId } }: SearchParamProps) => {
                         width={1000}
                         className="mb-12 h-10 w-fit"
                     />
+                    </Link>
 
                     <RegisterForm user={user} />
 

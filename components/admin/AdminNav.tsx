@@ -19,11 +19,15 @@ interface AdminNavProps {
         
     //   router.push(`/doctor/register/${id}`)
     // }
+    const goHome =()=> {
+        router.push(`/doctor`)
+    }
   return (
     <div className='main_admin_nav'>
         <nav>
             <div className="cont">
-                <div className="first">
+                
+                <div className="first" onClick={goHome}>
                     <img src="/assets/images/Logomark.png" alt="" />
                     <h2>CarePulse</h2>
                 </div>
