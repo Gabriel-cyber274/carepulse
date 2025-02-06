@@ -6,7 +6,7 @@ import moment from 'moment';
 import { DoctorType } from '@/types/appwrite.types';
 
 
-function page() {
+function Page() {
     const [doctor, setDoctor] = useState<DoctorType | null>(null);
     const [appointment, setAppointment] = useState('');
     const router = useRouter();
@@ -96,4 +96,4 @@ function page() {
   )
 }
 
-export default page
+export default Page
