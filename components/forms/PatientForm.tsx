@@ -89,11 +89,23 @@ const PatientForm: React.FC<PatientFormProps> = ({ type }) => {
             )
 
       localStorage.setItem('doctorInfo', JSON.stringify(response))
-            
+
+      // Set expiration time (current time + 3 hours)
+      const expirationTime = (new Date().getTime() + 3 * 60 * 60 * 1000).toString();
+
+      localStorage.setItem('expiresAt', expirationTime);
+
+      
       // router.push(`/patients/${response.$id}/register`)
       router.push(`/doctor/register/${response.$id}`)
     }else {
       localStorage.setItem('doctorInfo', JSON.stringify(checkInfo.documents[0]))
+
+      // Set expiration time (current time + 3 hours)
+      const expirationTime = (new Date().getTime() + 3 * 60 * 60 * 1000).toString();
+
+      localStorage.setItem('expiresAt', expirationTime);
+
       router.push(`/admin`)
     }
 
@@ -143,11 +155,25 @@ const PatientForm: React.FC<PatientFormProps> = ({ type }) => {
             )
 
       localStorage.setItem('userInfo', JSON.stringify(response))
-            
+
+      // Set expiration time (current time + 3 hours)
+      const expirationTime = (new Date().getTime() + 3 * 60 * 60 * 1000).toString();
+
+      localStorage.setItem('expiresAt', expirationTime);
+
+
+
       // console.log(response, 'active created')
       router.push(`/patients/${response.$id}/register`)
+
     }else {
       localStorage.setItem('userInfo', JSON.stringify(checkInfo.documents[0]))
+
+      // Set expiration time (current time + 3 hours)
+      const expirationTime = (new Date().getTime() + 3 * 60 * 60 * 1000).toString();
+
+      localStorage.setItem('expiresAt', expirationTime);
+
       // console.log(checkInfo.documents[0].$id, 'active2')
       router.push(`/patients/${checkInfo.documents[0].$id}/register`)
     }

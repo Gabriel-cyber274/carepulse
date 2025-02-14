@@ -190,6 +190,18 @@ const RegisterForm = ({ user }: { user: User }) => {
     
 
     useEffect(()=> {
+        if(localStorage.expiresAt !== undefined) {
+            let expiresAt = JSON.parse(localStorage.expiresAt);
+            let currentTime = new Date().getTime();
+    
+            if (currentTime > expiresAt) {
+                localStorage.removeItem("userInfo");
+                router.replace('/');
+            }
+        }
+        
+
+
         if(localStorage.userInfo == undefined) {
             router.replace('/');
         }else {

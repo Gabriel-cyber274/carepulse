@@ -156,6 +156,18 @@ const DoctorForm = ({ user }: { user: User }) => {
   }
 
   useEffect(()=> {
+    if(localStorage.expiresAt !== undefined) {
+      let expiresAt = JSON.parse(localStorage.expiresAt);
+      let currentTime = new Date().getTime();
+
+      if (currentTime > expiresAt) {
+          localStorage.removeItem("doctorInfo");
+          router.replace('/doctor');
+      }
+    }
+
+    
+    
     if(localStorage.doctorInfo == undefined) {
       router.replace('/doctor');
     } else {
