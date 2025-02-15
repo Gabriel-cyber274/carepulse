@@ -241,7 +241,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ type }) => {
 
   // }
 
-  
+
   const loginDoctor = async (name: string, email: string, phone: string) => {
     setIsLoading(true);
   
@@ -612,7 +612,9 @@ const PatientForm: React.FC<PatientFormProps> = ({ type }) => {
               {otp.map((digit, index) => (
               <input
                 key={index}
-                ref={(el) => (inputsRef.current[index] = el)}
+                ref={(el) => {
+                  inputsRef.current[index] = el;
+                }}
                 type="text"
                 maxLength={1}
                 style={{border: otpErr? '1px solid red': '1px solid #363A3D'}}
