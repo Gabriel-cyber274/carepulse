@@ -1,4 +1,4 @@
-import { Client, Databases,Storage } from "node-appwrite";
+import { Client, Databases,Storage, Account } from "node-appwrite";
 
 
 export const PROJECT_ID = '678ab3270032f5946131'
@@ -18,6 +18,9 @@ client
     .setProject('678ab3270032f5946131')   
     .setKey(API_KEY)
 
+
+   export const account = new Account(client);
+    
     
     
 

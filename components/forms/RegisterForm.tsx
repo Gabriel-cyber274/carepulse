@@ -262,7 +262,7 @@ const RegisterForm = ({ user }: { user: User }) => {
                     setidentificationType(form.getValues("identificationType") || "")
                     setGender(form.getValues("gender") || "male")
                     setDocUrl(userInfo.identificationDocument || "")
-                    setPrimaryPhysician(userInfo.primaryPhysician.name || "")
+                    setPrimaryPhysician(userInfo.primaryPhysician?.name || "")
 
                     // Update form values
                     form.reset({ ...form.getValues(), email: userInfo.email, name: userInfo.name, phone: userInfo.phone, 
@@ -271,7 +271,7 @@ const RegisterForm = ({ user }: { user: User }) => {
                         emergencyContactName: userInfo.emergencyContactName ?? "",
                         emergencyContactNumber: userInfo.emergencyContactNumber ?? "",
 
-                        primaryPhysician: userInfo.primaryPhysician.name ?? "",
+                        primaryPhysician: userInfo.primaryPhysician?.name ?? "",
 
                         insuranceProvider: userInfo.insuranceProvider ?? "",
                         insurancePolicyNumber: userInfo.insurancePolicyNumber ?? "",
