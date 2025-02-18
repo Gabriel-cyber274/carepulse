@@ -188,7 +188,7 @@ function MainLanding() {
                     </div>
                     {filteredDoc.length >0 && <div className="search_result_doc mt-5">
                         {filteredDoc.map((doc, index)=> (
-                            <a href={doc.linkedin} target='_blank'>{doc.name}</a>
+                            <a key={index} href={doc.linkedin} target='_blank'>{doc.name}</a>
                         ))}
                     </div>}
                 </div>
@@ -230,7 +230,7 @@ function MainLanding() {
                     <div className="overflow">
                         <div className="speacialization ms-5">
                             {areasOfSpecialization.map((area, index)=> (
-                                <div className="box me-3">
+                                <div className="box me-3" key={index}>
                                     <img src="/assets/images/doc.png" alt="" />
                                     <h1 className='my-4'>{area.name}</h1>
                                     <p className='mb-3'>{area.description}</p>
