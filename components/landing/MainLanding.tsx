@@ -184,7 +184,9 @@ function MainLanding() {
                                 ))}
                             </select>
                         </div>
-                        <button onClick={()=> { !isLoading && filterDoctor()}}>Find Doctor</button>
+                        <button onClick={filterDoctor} disabled={isLoading}>
+                            {isLoading ? "Searching..." : "Find Doctor"}
+                        </button>
                     </div>
                     {filteredDoc.length >0 && <div className="search_result_doc mt-5">
                         {filteredDoc.map((doc, index)=> (
@@ -201,8 +203,8 @@ function MainLanding() {
                         <div className="doctor_message">
                             <img src="/assets/images/dr-peter.png" alt="" />
                             <div className="message ms-2">
-                                <h3>"Our goal is to provide you with the necessary resources
-                                and advice to turn my business idea"</h3>
+                                <h3>&quot;Our goal is to provide you with the necessary resources
+                                and advice to turn my business idea&quot;</h3>
                                 <h4>Dr. Carter</h4>
                             </div>
                         </div>
