@@ -174,12 +174,12 @@ const AppointmentForm = ({
 
             if (currentTime > expiresAt) {
                 localStorage.removeItem("userInfo");
-                router.replace('/');
+                router.replace('/patient');
             }
         }
 
         if(localStorage.userInfo == undefined) {
-            router.replace('/');
+            router.replace('/patient');
         }else {
             getUsetInfo();
             getDoctors();
