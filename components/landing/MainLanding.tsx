@@ -46,6 +46,8 @@ function MainLanding() {
     const [location, setLocation] = useState('');
     const [docSpecialization, setDocSpecialization] = useState('');
     const [filteredDoc, setFilterDoc] = useState<DoctorType[]>([]);
+    const [scrolled, setScrolled] = useState(false);
+
 
     const toaster = (message:string, type:string) => {
         if(type == 'err') {
@@ -114,14 +116,29 @@ function MainLanding() {
         setFilterDoc(filteredResults);
     };
     
+
+    useEffect(() => {
+      const handleScroll = () => {
+        if (window.scrollY > 50) {
+          setScrolled(true);
+        } else {
+          setScrolled(false);
+        }
+      };
+  
+      window.addEventListener("scroll", handleScroll);
+      
+      return () => {
+        window.removeEventListener("scroll", handleScroll);
+      };
+    }, []);
     
       
 
     
   return (
     <div className='land_cont'>
-        <div className="first_sec" id='home'>
-            <nav>
+            <nav className={scrolled ? "scrolled" : ""}>
                 <div className="cont">
                     <div className="logo">
                         <img src="/assets/images/Logomark.png" alt="" />
@@ -145,6 +162,7 @@ function MainLanding() {
                     </a>
                 </div>
             </nav>
+        <div className="first_sec" id='home'>
             
             <div className="main_first">
                 <div className="cont">
@@ -161,7 +179,9 @@ function MainLanding() {
                         </Link>
                     </div>
                     <div className="second">
-                        <img src="/assets/images/firstland.jpg" alt="" />
+                        {/* <img src="/assets/images/firstland.jpg" alt="" /> */}
+                        <img src="/assets/images/first1.png" alt="" />
+                        
                     </div>
 
                 </div>
@@ -211,8 +231,8 @@ function MainLanding() {
                         <Link href='/patient'><button>Book an Appointment</button></Link>
                     </div>
                     <div className="second">
-                        <img src="/assets/images/third_sec.jpg" alt="" />
-                    
+                        {/* <img src="/assets/images/third_sec.jpg" alt="" /> */}
+                        <img src="/assets/images/first2.png" alt="" />
 
                     </div>
                 </div>

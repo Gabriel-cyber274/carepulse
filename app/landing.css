@@ -1,6 +1,10 @@
 nav {
     display: flex;
     justify-content: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: #e2fff5;
 }
 nav .cont {
     width: 90%;
@@ -8,7 +12,12 @@ nav .cont {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    transition: all 0.3s ease-in-out;
 }
+nav.scrolled {
+    /* border-bottom: 2px solid #1c94cf;  */
+    box-shadow: 0px 6px 6px rgba(0, 0, 0, 0.1);
+  }
 nav .cont .logo {
     display: flex;
     align-items: center;
@@ -66,7 +75,8 @@ nav .cont .number img {
 }
 
 .land_cont .first_sec .main_first {
-    margin-top: 40px;
+    /* margin-top: 40px; */
+    padding-top: 50px;
     display: flex;
     justify-content: center;
 }
@@ -110,6 +120,10 @@ nav .cont .number img {
 }
 .land_cont .first_sec .main_first .cont .second img {
     width: 100%;
+    object-fit: cover;
+    object-position: top;
+    height: 450px;
+    border-radius: 10px;
 }
 .land_cont .second_sec {
     width: 100%;
@@ -251,7 +265,10 @@ nav .cont .number img {
 }
 .land_cont .second_sec .cont .main_second .second img {
     width: 100%;
+    height: 500px;
     object-fit: cover;
+    object-position: top;
+    border-radius: 10px;
 }
 
 .land_cont .third_sec {
