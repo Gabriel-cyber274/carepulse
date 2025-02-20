@@ -15,7 +15,7 @@ const Register = async ({ params: { userId } }: SearchParamProps) => {
                 <div className="sub-container max-w-[860px] flex-1 flex-col py-10">
                     <Link href={'/doctor'}>
                         <Image
-                            src="/assets/icons/logo-full.svg"
+                            src="/assets/icons/logo-full.png"
                             alt="CarePulse Logo"
                             height={1000}
                             width={1000}
@@ -27,7 +27,7 @@ const Register = async ({ params: { userId } }: SearchParamProps) => {
                     <DoctorForm user={user} />
 
                     <p className="copyright py-12">
-                        © 2024 CarePulse.
+                        © 2024 HeliCare.
                     </p>
                 </div>
             </section>

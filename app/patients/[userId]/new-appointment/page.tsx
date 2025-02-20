@@ -29,7 +29,7 @@ export default async function NewAppointment({ params: { userId } }: SearchParam
                 <div className="sub-container max-w-[860px] flex-1 justify-between">
                 <Link href={'/'}>
                     <Image
-                        src="/assets/icons/logo-full.svg"
+                        src="/assets/icons/logo-full.png"
                         alt="CarePulse Logo"
                         height={1000}
                         width={1000}
@@ -44,7 +44,7 @@ export default async function NewAppointment({ params: { userId } }: SearchParam
                     />
 
                     <p className="copyright mt-10 py-12">
-                        © 2024 CarePulse.
+                        © 2024 HeliCare.
                     </p>
 
                 </div>
