@@ -29,7 +29,7 @@ interface AdminNavProps {
                 
                 <div className="first" onClick={goHome}>
                     <img src="/assets/images/Logomark.png" alt="" />
-                    <h2>HeliCare</h2>
+                    <h2>ViePulse</h2>
                 </div>
 
                 <Link href={`/doctor/register/${id}`}>

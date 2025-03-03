@@ -87,7 +87,8 @@ nav .cont .number img {
     width: 90%;
 }
 .land_cont .first_sec .main_first .cont .first {
-    width: 50%;
+    /* width: 50%; */
+    width: 35%;
 }
 .land_cont .first_sec .main_first .cont .first h1 {
     font-weight: 600;
@@ -115,15 +116,40 @@ nav .cont .number img {
     letter-spacing: 0%;
     color: #598188;
 }
+
 .land_cont .first_sec .main_first .cont .second {
-    width: 45%;
+    /* width: 45%;
+    position: relative; */
+    width: max-content;
+    position: relative;
+    display: flex;
+    justify-content: end;
 }
+
 .land_cont .first_sec .main_first .cont .second img {
-    width: 100%;
+    /* width: 100%; */
     object-fit: cover;
     object-position: top;
-    height: 450px;
-    border-radius: 10px;
+    /* height: 450px; */
+    /* border-radius: 10px; */
+}
+.land_cont .first_sec .main_first .cont .second .discount {
+    /* position:; */
+    width: 394px;
+    padding: 20px;
+    border-radius: 10.93px;
+    background: #FFFFFF;
+    box-shadow: 0px 12.49px 40px 0px #6A6A6A26;
+    top: 11%;
+    left: -229px;
+    position: absolute;
+}
+.land_cont .first_sec .main_first .cont .second .discount h2 {
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 38.4px;
+    letter-spacing: -2%;
+    color: #000000;
 }
 .land_cont .second_sec {
     width: 100%;
@@ -551,6 +577,44 @@ nav .cont .number img {
     color: #DBDBDB;
 }
 
+@media (max-width: 1231px) {
+    .land_cont .first_sec .main_first .cont .second img {
+        width: 359px;
+    }
+    .land_cont .first_sec .main_first .cont .second .discount h2 {
+        font-weight: 700;
+        font-size: 22px;
+    }
+    .land_cont .first_sec .main_first .cont .second .discount {
+        top: 8%;
+        left: -284px;
+    }
+}
+
+@media (max-width: 1098px) {
+    .land_cont .first_sec .main_first .cont {
+        flex-direction: column;
+    }
+    .land_cont .first_sec .main_first .cont .first {
+        width: 100%;
+    }
+    .land_cont .first_sec .main_first .cont .second {
+        flex-direction: column-reverse;
+        width: 100%;
+    }
+    .land_cont .first_sec .main_first .cont .second .discount {
+        position: relative;
+        top: 0;
+        left: 0;
+        /* width: 100%; */
+        margin-top: 30px;
+    }
+    .land_cont .first_sec .main_first .cont .second img {
+        width: 100%;
+        height: 372px;
+        object-fit: contain;
+    }
+}
 
 @media (max-width: 768px) {
     .land_cont .first_sec .main_first .cont {
@@ -628,4 +692,11 @@ nav .cont .number img {
     nav .cont .links {
         display: none;
     }
+}
+
+@media (max-width: 496px) {
+    .land_cont .first_sec .main_first .cont .second .discount {
+        width: 100%;
+    }
+    
 }

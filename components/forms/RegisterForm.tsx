@@ -638,7 +638,7 @@ const RegisterForm = ({ user }: { user: User }) => {
                     />
                 </div>
                 
-                <a href="/assets/images/Privacy Policy for Patients.pdf" target="_blank" style={{paddingTop: '10px', color: '#5353d9', textDecoration: 'underline'}}>view privacy policy</a>
+                <a href="/assets/images/viepulse.pdf" target="_blank" style={{paddingTop: '10px', color: '#5353d9', textDecoration: 'underline'}}>view privacy policy</a>
 
                 <SubmitButton
                     isLoading={isLoading}

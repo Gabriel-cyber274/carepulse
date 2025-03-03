@@ -142,7 +142,7 @@ function MainLanding() {
                 <div className="cont">
                     <div className="logo">
                         <img src="/assets/images/Logomark.png" alt="" />
-                        <h2>HeliCare</h2>
+                        <h2>ViePulse</h2>
                     </div>
                     <div className="links">
                         <a href="#home" style={{textDecoration: 'none'}}>
@@ -173,15 +173,27 @@ function MainLanding() {
                         <p>We help you to start get best medical service &
                         make your life more easier.</p>
                         <Link href='/patient'>
-                            <button>
-                                Book an Appointment
+                            <button style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                Book an Appointment <svg className='ms-2' width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M15.2375 16.0798C15.127 16.1828 15.0383 16.307 14.9769 16.445C14.9154 16.583 14.8823 16.732 14.8796 16.8831C14.877 17.0341 14.9048 17.1842 14.9613 17.3242C15.0179 17.4643 15.1021 17.5916 15.209 17.6984C15.3158 17.8052 15.443 17.8894 15.5831 17.946C15.7232 18.0026 15.8733 18.0304 16.0243 18.0277C16.1754 18.0251 16.3243 17.992 16.4623 17.9305C16.6003 17.869 16.7245 17.7804 16.8275 17.6698L21.704 12.7948L22.499 11.9998L21.704 11.2048L16.829 6.32985C16.6169 6.12482 16.3328 6.01129 16.0378 6.01371C15.7429 6.01613 15.4606 6.13431 15.252 6.3428C15.0433 6.55129 14.9248 6.8334 14.9221 7.12837C14.9194 7.42334 15.0327 7.70757 15.2375 7.91985L18.1925 10.8748L2.62402 10.8748C2.32565 10.8748 2.03951 10.9934 1.82853 11.2043C1.61755 11.4153 1.49902 11.7015 1.49902 11.9998C1.49902 12.2982 1.61755 12.5844 1.82853 12.7953C2.03951 13.0063 2.32565 13.1248 2.62402 13.1248L18.1925 13.1248L15.2375 16.0798Z" fill="#122955"/>
+                                </svg>
                             </button>
                         </Link>
                     </div>
                     <div className="second">
                         {/* <img src="/assets/images/firstland.jpg" alt="" /> */}
                         <img src="/assets/images/first1.png" alt="" />
-                        
+                        <div className="discount">
+                            <svg width="63" height="64" viewBox="0 0 63 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="0.232422" y="0.739746" width="62.4931" height="62.4931" rx="6.24658" fill="#D8FFF3"/>
+                            <path d="M25.2305 38.2354L37.7305 25.7354" stroke="#00CE9C" stroke-width="4.16667" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M26.2721 27.8187C26.8474 27.8187 27.3138 27.3523 27.3138 26.777C27.3138 26.2017 26.8474 25.7354 26.2721 25.7354C25.6968 25.7354 25.2305 26.2017 25.2305 26.777C25.2305 27.3523 25.6968 27.8187 26.2721 27.8187Z" fill="#00CE9C" stroke="#00CE9C" stroke-width="4.16667" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M36.6891 38.2352C37.2644 38.2352 37.7308 37.7688 37.7308 37.1935C37.7308 36.6182 37.2644 36.1519 36.6891 36.1519C36.1138 36.1519 35.6475 36.6182 35.6475 37.1935C35.6475 37.7688 36.1138 38.2352 36.6891 38.2352Z" fill="#00CE9C" stroke="#00CE9C" stroke-width="4.16667" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12.7305 31.9854C12.7305 34.4476 13.2155 36.8858 14.1577 39.1607C15.1 41.4355 16.4811 43.5025 18.2222 45.2436C19.9633 46.9847 22.0303 48.3658 24.3052 49.3081C26.58 50.2504 29.0182 50.7354 31.4805 50.7354C33.9428 50.7354 36.3809 50.2504 38.6558 49.3081C40.9306 48.3658 42.9976 46.9847 44.7387 45.2436C46.4798 43.5025 47.8609 41.4355 48.8032 39.1607C49.7455 36.8858 50.2305 34.4476 50.2305 31.9854C50.2305 29.5231 49.7455 27.0849 48.8032 24.81C47.8609 22.5352 46.4798 20.4682 44.7387 18.7271C42.9976 16.986 40.9306 15.6049 38.6558 14.6626C36.3809 13.7203 33.9428 13.2354 31.4805 13.2354C29.0182 13.2354 26.58 13.7203 24.3052 14.6626C22.0303 15.6049 19.9633 16.986 18.2222 18.7271C16.4811 20.4682 15.1 22.5352 14.1577 24.81C13.2155 27.0849 12.7305 29.5231 12.7305 31.9854Z" stroke="#00CE9C" stroke-width="4.16667" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+
+                            <h2 className='mt-2'>Get the Discount 30% for the first time </h2>
+                        </div>
                     </div>
 
                 </div>
@@ -292,7 +304,7 @@ function MainLanding() {
                 <div className="first">
                     <div className="logo">
                         <img src="/assets/images/Logomark.png" alt="" />
-                        <h2>HeliCare</h2>
+                        <h2>ViePulse</h2>
                     </div>
                     <p>These are some customer testimonials
                     who are satisfied with the place and
@@ -321,10 +333,10 @@ function MainLanding() {
                     </div>
                     <div className="links_main legal ms-5">
                         <h1 className='mb-4'>Legal</h1>
-                        <a href="/assets/images/Privacy Policy for Doctors (1).pdf" target="_blank" style={{textDecoration: 'none'}}>
+                        <a href="/assets/images/viepulse D.pdf" target="_blank" style={{textDecoration: 'none'}}>
                             <h2 className='mb-3'>Doctors Privacy Policy</h2>
                         </a>
-                        <a href="/assets/images/Privacy Policy for Patients.pdf" target="_blank" style={{textDecoration: 'none'}}>
+                        <a href="/assets/images/viepulse.pdf" target="_blank" style={{textDecoration: 'none'}}>
                             <h2 className='mb-3'>Patient Privacy Policy</h2>
                         </a>
                     </div>
