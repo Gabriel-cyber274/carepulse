@@ -14,8 +14,9 @@ import CustomFormField from "@/components/CustomFormField";
 import SubmitButton from "@/components/SubmitButton";
 import { UserFormValidation } from "@/lib/validation";
 import { createUser } from "@/lib/actions/patient.actions";
-import {databases, DATABASE_ID, PATIENT_COLLECTION_ID, DOCTOR_COLLECTION_ID, account} from '../../lib/appwriteConfig2'
+import {databases, DATABASE_ID, PATIENT_COLLECTION_ID, DOCTOR_COLLECTION_ID, account, PATIENT_OTP_ID, DOCTOR_OTP_ID} from '../../lib/appwriteConfig2'
 import { ID, Query } from "appwrite";
+import emailjs from '@emailjs/browser';
 
 
 export enum FormFieldType {
@@ -92,6 +93,15 @@ const PatientForm: React.FC<PatientFormProps> = ({ type }) => {
   };
 
 
+  const generateOTP = () => {
+    let newOTP = '';
+    for (let i = 0; i < 6; i++) {
+      newOTP += Math.floor(Math.random() * 10);
+    }
+    return newOTP;
+  };
+
+
   useEffect(()=> {
     localStorage.removeItem('doctorInfo')
     localStorage.removeItem('userInfo')
@@ -129,117 +139,6 @@ const PatientForm: React.FC<PatientFormProps> = ({ type }) => {
     
   }
 
-  // const loginDoctor = async (name:string, email:string, phone:string)=> {
-  //   setIsLoading(true);
-
-  //   try {
-  //     const userData = { name, email, phone };
-
-
-  //     let checkInfo = await databases.listDocuments(
-  //       DATABASE_ID,
-  //       DOCTOR_COLLECTION_ID,
-  //       [
-  //           Query.equal('email', [email]),
-  //           Query.equal('phone', [phone]),
-  //           Query.equal('name', [name]),
-  //       ]
-  //   );
-
-  //   if(checkInfo.total == 0) {
-  //     let response = await databases.createDocument(
-  //             DATABASE_ID,
-  //             DOCTOR_COLLECTION_ID,
-  //             ID.unique(),
-  //             userData
-  //           )
-
-  //           const result = await account.create(
-  //             ID.unique(), 
-  //             email, 
-  //             `${email}${phone}`, 
-  //             name 
-  //         );
-  //           const token = await account.createPhoneToken(
-  //             ID.unique(),
-  //             phone
-  //           );
-
-
-            
-  //     setUserId(token.userId);
-         
-
-
-
-  //     localStorage.setItem('doctorInfo', JSON.stringify(response))
-
-  //     // Set expiration time (current time + 3 hours)
-  //     const expirationTime = (new Date().getTime() + 3 * 60 * 60 * 1000).toString();
-
-  //     localStorage.setItem('expiresAt', expirationTime);
-
-      
-  //     setIsDoctor(true);
-  //     setLinkId(response.$id);
-  //     setAdminLink(false);
-
-   
-
-
-  //     setIsOtp(true);
-
-      
-  //     // router.push(`/patients/${response.$id}/register`)
-  //     // router.push(`/doctor/register/${response.$id}`)
-  //   }else {
-  //     localStorage.setItem('doctorInfo', JSON.stringify(checkInfo.documents[0]))
-
-  //     // Set expiration time (current time + 3 hours)
-  //     const expirationTime = (new Date().getTime() + 3 * 60 * 60 * 1000).toString();
-
-  //     localStorage.setItem('expiresAt', expirationTime);
-
-      
-      
-  //     setIsDoctor(true);
-  //     setLinkId(checkInfo.documents[0].$id);
-  //     setAdminLink(true);
-
-  //     const token = await account.createPhoneToken(
-  //       ID.unique(),
-  //       phone
-  //     );
-   
-
-  //     setUserId(token.userId);
-
-  //     setIsOtp(true);
-
-  //     // router.push(`/admin`)
-  //   }
-
-
-  //   toaster('successful', 'success');
-
-          
-
-
-  //     console.log(userData, 'active')
-  //     // const user = await createUser(userData);
-
-  //     setIsLoading(false)
-
-  //     // console.log(user, 'resgistee');
-
-  //     // if (user) router.push(`/patients/${user.$id}/register`);
-  //   } catch (error) {
-  //     toaster(JSON.stringify(error), 'err');
-  //     setIsLoading(false);
-  //     console.error(error);
-  //   }
-
-  // }
 
 
   const loginDoctor = async (name: string, email: string, phone: string) => {
@@ -252,186 +151,57 @@ const PatientForm: React.FC<PatientFormProps> = ({ type }) => {
       const checkInfo = await databases.listDocuments(
         DATABASE_ID,
         DOCTOR_COLLECTION_ID,
-        [
-          Query.equal("email", [email]),
-          Query.equal("phone", [phone]),
-        ]
+        [Query.equal("email", [email]), Query.equal("phone", [phone])]
       );
   
       let doctorData;
-      let token;
       let isNewDoctor = checkInfo.total === 0;
   
       if (isNewDoctor) {
-  
-        // 1️⃣ Create the user account first (If this fails, execution stops)
+        // Create new account and doctor record
         const accountResult = await account.create(ID.unique(), email, `${email}${phone}`, name);
-  
-        // 2️⃣ If successful, execute the remaining API calls
-        const [response, phoneToken] = await Promise.all([
-          databases.createDocument(DATABASE_ID, DOCTOR_COLLECTION_ID, ID.unique(), userData),
-          account.createPhoneToken(ID.unique(), phone),
-        ]);
-  
-        doctorData = response;
-        token = phoneToken;
+        doctorData = await databases.createDocument(DATABASE_ID, DOCTOR_COLLECTION_ID, ID.unique(), userData);
       } else {
-        // If doctor exists, only generate a new phone token
-        const phoneToken = await account.createPhoneToken(ID.unique(), phone);
+        // Get existing doctor data
         doctorData = checkInfo.documents[0];
-        token = phoneToken;
       }
+  
+      // Generate OTP and send email
+      const otp = generateOTP();
+      await databases.createDocument(DATABASE_ID, DOCTOR_OTP_ID, ID.unique(), { doctor: doctorData.$id, otp });
+  
+      emailjs.send(
+        'service_9efki63', 
+        'template_l0j4xya', 
+        { user_name: doctorData.name, email_to: doctorData.email, message: `Your OTP is: ${otp}` }, 
+        'Pkq14uLPi-Jjfaz-J'
+      ).then(
+        response => console.log('SUCCESS!', response.status, response.text),
+        err => console.log('FAILED...', err)
+      );
   
       // Store doctor info in localStorage
       localStorage.setItem("doctorInfo", JSON.stringify(doctorData));
-  
-      // Set expiration time (current time + 3 hours)
-      const expirationTime = (Date.now() + 3 * 60 * 60 * 1000).toString();
-      localStorage.setItem("expiresAt", expirationTime);
+      localStorage.setItem("expiresAt", (Date.now() + 3 * 60 * 60 * 1000).toString());
   
       // Update state
-      setUserId(token.userId);
       setIsOtp(true);
       setIsDoctor(true);
       setLinkId(doctorData.$id);
-      setAdminLink(!isNewDoctor); // Admin if doctor already exists
+      setAdminLink(!isNewDoctor);
   
-      // toaster("Login successful!", "success");
       console.log("Doctor Data:", doctorData);
     } catch (error: any) {
       setIsLoading(false);
-  
-      // Improved error handling
-      let errorMessage = "An unexpected error occurred.";
-      if (error?.message) {
-        errorMessage = error.message;
-      } else {
-        try {
-          errorMessage = JSON.stringify(error);
-        } catch {
-          console.error("Error parsing error:", error);
-        }
-      }
-  
-      toaster(errorMessage, "err");
+      toaster(error?.message || "An unexpected error occurred.", "err");
+      console.error("Error:", error);
     } finally {
       setIsLoading(false);
     }
   };
+
   
-  
 
-  // const loginPatient = async(name:string, email:string, phone:string)=> {
-  //   setIsLoading(true);
-
-  //   try {
-  //     const userData = { name, email, phone };
-
-
-  //     let checkInfo = await databases.listDocuments(
-  //       DATABASE_ID,
-  //       PATIENT_COLLECTION_ID,
-  //       [
-  //           Query.equal('email', [email]),
-  //           Query.equal('phone', [phone]),
-
-  //       ]
-  //   );
-
-  //   if(checkInfo.total == 0) {
-  //     let response = await databases.createDocument(
-  //             DATABASE_ID,
-  //             PATIENT_COLLECTION_ID,
-  //             ID.unique(),
-  //             userData
-  //           )
-
-  //     const result = await account.create(
-  //         ID.unique(), 
-  //         email, 
-  //         `${email}${phone}`, 
-  //         name 
-  //     );
-
-  //     const token = await account.createPhoneToken(
-  //       ID.unique(),
-  //       phone
-  //   );
-
-  //     localStorage.setItem('userInfo', JSON.stringify(response))
-
-  //     // Set expiration time (current time + 3 hours)
-  //     const expirationTime = (new Date().getTime() + 3 * 60 * 60 * 1000).toString();
-
-  //     localStorage.setItem('expiresAt', expirationTime);
-
-  //     setIsDoctor(false);
-  //     setLinkId(response.$id);
-
-
-  //     // router.push(`/patients/${response.$id}/register`)
-
-  //   }else {
-  //     localStorage.setItem('userInfo', JSON.stringify(checkInfo.documents[0]))
-
-  //     // Set expiration time (current time + 3 hours)
-  //     const expirationTime = (new Date().getTime() + 3 * 60 * 60 * 1000).toString();
-
-  //     localStorage.setItem('expiresAt', expirationTime);
-
-  //     setIsDoctor(false);
-  //     setLinkId(checkInfo.documents[0].$id);
-
-
-  //     // router.push(`/patients/${checkInfo.documents[0].$id}/register`)
-
-  //     const token = await account.createPhoneToken(
-  //       ID.unique(),
-  //       phone
-  //     );
-   
-
-  //   setUserId(token.userId);
-
-  //   setIsOtp(true);
-
-
-  //   console.log(token, 'sms');
-
-  //     // const sessionToken = await account.createEmailToken(
-  //     //   ID.unique(),
-  //     //   email
-  //     // );    
-  //   }
-
-
-  //   toaster('successful', 'success');
-
-  //     console.log(userData, 'active')
-  //     // const user = await createUser(userData);
-
-  //     setIsLoading(false)
-
-
-  //     // if (user) router.push(`/patients/${user.$id}/register`);
-
-  //   } catch (error:any) {
-  //     setIsLoading(false);
-  //     if (typeof error === 'object' && error !== null && 'message' in error) {
-  //       toaster((error as { message: string }).message, 'err'); // Type assertion
-  //     } else if (typeof error === 'string') {
-  //       toaster(error, 'err');
-  //     } else {
-  //         try {
-  //           const parsedError = JSON.stringify(error);
-  //           toaster(parsedError, 'err');
-  //         } catch (stringifyError) {
-  //           toaster("An unexpected error occurred.", 'err'); // Fallback message
-  //           console.error("Error stringifying error:", stringifyError);
-  //         }
-  //     }
-  //   }
-  // }
 
   const loginPatient = async (name: string, email: string, phone: string) => {
     setIsLoading(true);
@@ -440,82 +210,50 @@ const PatientForm: React.FC<PatientFormProps> = ({ type }) => {
       const userData = { name, email, phone };
   
       // Check if the user already exists
-      const checkInfo = await databases.listDocuments(
-        DATABASE_ID,
-        PATIENT_COLLECTION_ID,
-        [
-          Query.equal("email", [email]),
-          Query.equal("phone", [phone]),
-        ]
-      );
+      const checkInfo = await databases.listDocuments(DATABASE_ID, PATIENT_COLLECTION_ID, [
+        Query.equal("email", [email]),
+        Query.equal("phone", [phone]),
+      ]);
   
-      let userId = "";
       let patientData;
-      let token;
   
       if (checkInfo.total === 0) {
-  
-        // 1️⃣ Create the user account first (If this fails, execution stops)
-        const result = await account.create(ID.unique(), email, `${email}${phone}`, name);
-  
-        // 2️⃣ If successful, create patient record & phone token in parallel
-        const [response, phoneToken] = await Promise.all([
-          databases.createDocument(DATABASE_ID, PATIENT_COLLECTION_ID, ID.unique(), userData),
-          account.createPhoneToken(ID.unique(), phone),
-        ]);
-  
-        userId = phoneToken.userId;
-        patientData = response;
-        token = phoneToken;
+        // Create a new user & patient record
+        await account.create(ID.unique(), email, `${email}${phone}`, name);
+        patientData = await databases.createDocument(DATABASE_ID, PATIENT_COLLECTION_ID, ID.unique(), userData);
       } else {
-        const existingPatient = checkInfo.documents[0];
-  
-        // Generate phone token for existing user
-        const phoneToken = await account.createPhoneToken(ID.unique(), phone);
-  
-        userId = phoneToken.userId;
-        patientData = existingPatient;
-        token = phoneToken;
+        patientData = checkInfo.documents[0]; // Existing patient
       }
+  
+      // Generate OTP and store it
+      const otp = generateOTP();
+      await databases.createDocument(DATABASE_ID, PATIENT_OTP_ID, ID.unique(), { patient: patientData.$id, otp });
+  
+      // Send OTP email
+      await emailjs.send("service_9efki63", "template_l0j4xya", {
+        user_name: patientData.name,
+        email_to: patientData.email,
+        message: `Your OTP is: ${otp}`,
+      }, "Pkq14uLPi-Jjfaz-J");
   
       // Store user info in localStorage
       localStorage.setItem("userInfo", JSON.stringify(patientData));
-  
-      // Set expiration time (current time + 3 hours)
-      const expirationTime = (Date.now() + 3 * 60 * 60 * 1000).toString();
-      localStorage.setItem("expiresAt", expirationTime);
+      localStorage.setItem("expiresAt", (Date.now() + 3 * 60 * 60 * 1000).toString());
   
       // Update state
-      setUserId(userId);
       setIsOtp(true);
       setIsDoctor(false);
       setLinkId(patientData.$id);
   
-      // toaster("Successful", "success");
-      console.log('token', token);
       console.log("User Created:", userData);
     } catch (error: any) {
-      setIsLoading(false);
-  
-      console.log(error, 'iii');
-  
-      // Handle different error types gracefully
-      let errorMessage = "An unexpected error occurred.";
-      if (error?.message) {
-        errorMessage = error.message;
-      } else {
-        try {
-          errorMessage = JSON.stringify(error);
-        } catch {
-          console.error("Error stringifying error:", error);
-        }
-      }
-  
-      toaster(errorMessage, "err");
+      console.error(error);
+      toaster(error?.message || "An unexpected error occurred.", "err");
     } finally {
       setIsLoading(false);
     }
   };
+  
   
 
   const verifyOtp = async()=> {
@@ -525,27 +263,38 @@ const PatientForm: React.FC<PatientFormProps> = ({ type }) => {
       console.log("User ID:", userId);
       console.log("OTP Entered:", otp.join(""));
 
-      const session = await account.createSession(
-        userId,
-        otp.join('')
+      // const session = await account.createSession(
+      //   userId,
+      //   otp.join('')
+      // );
+
+      const checkInfo = await databases.listDocuments(
+        DATABASE_ID,
+        isDoctor? DOCTOR_OTP_ID: PATIENT_OTP_ID,
+        [isDoctor? Query.equal("doctor", linkId) : Query.equal("patient", linkId)]
       );
+      
+      const recent = checkInfo.documents[checkInfo.documents.length-1];
 
-      toaster("Successful", "success");
-  
+      console.log(recent, 'ative');
       setIsLoading(false);
-      setOtpError(false);
 
-      if(isDoctor && !adminLink) {
-        router.push(`/doctor/register/${linkId}`)
-      }else if(isDoctor && adminLink) {
-        router.push(`/admin`)
+
+      if(recent.otp == otp.join("")) {
+        toaster("Successful", "success");
+    
+        setOtpError(false);
+  
+        if(isDoctor && !adminLink) {
+          router.push(`/doctor/register/${linkId}`)
+        }else if(isDoctor && adminLink) {
+          router.push(`/admin`)
+        }else {
+          router.push(`/patients/${linkId}/register`)
+        }
       }else {
-        router.push(`/patients/${linkId}/register`)
+        setOtpError(true);
       }
-
-  
-  
-      console.log(session, 'omo');
       
     } catch (error) {
       setIsLoading(false);
