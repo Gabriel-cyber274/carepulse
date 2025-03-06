@@ -344,7 +344,7 @@ function MainLanding() {
             </div>
         </div>
         <div className="copy">
-            <h1>All Rights Reserved ®HaliCare 2023</h1>
+            <h1>All Rights Reserved ®ViePulse 2025</h1>
             <h1 className='mt-2'>powered by Amsley Technlogy</h1>
         </div>
         <ToastContainer />
