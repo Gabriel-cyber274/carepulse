@@ -29,6 +29,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import {databases, DATABASE_ID, PATIENT_COLLECTION_ID, BUCKET_ID, storage, ENDPOINT, PROJECT_ID, DOCTOR_COLLECTION_ID, API_KEY} from '../../lib/appwriteConfig2'
 import { InputFile } from "node-appwrite/file"
 import { DoctorType } from "@/types/appwrite.types"
+import { getDoctorLanding, GetSinglePatient, updatePatient, uploadFile } from "@/lib/actions/apis"
 
 const RegisterForm = ({ user }: { user: User }) => {
     const router = useRouter();
@@ -112,10 +113,10 @@ const RegisterForm = ({ user }: { user: User }) => {
             fileToUpload = values.identificationDocument[0]; // Directly assign the File object
         }
     
-        if (!BUCKET_ID || !PROJECT_ID || !DATABASE_ID || !PATIENT_COLLECTION_ID) {
-            console.error("Required environment variables are missing.");
-            return;
-        }
+        // if (!BUCKET_ID || !PROJECT_ID || !DATABASE_ID || !PATIENT_COLLECTION_ID) {
+        //     console.error("Required environment variables are missing.");
+        //     return;
+        // }
     
         setIsLoading(true);
     
@@ -123,11 +124,14 @@ const RegisterForm = ({ user }: { user: User }) => {
             let fileUrl = "";
             if (fileToUpload) {
                 // Upload file
-                const uploadedFile = await storage.createFile(
-                    BUCKET_ID,
-                    ID.unique(),
-                    fileToUpload
-                );
+                // const uploadedFile = await storage.createFile(
+                //     BUCKET_ID,
+                //     ID.unique(),
+                //     fileToUpload
+                // );
+                const uploadedFile = await uploadFile(fileToUpload);
+
+                
                 fileUrl = `${ENDPOINT}/storage/buckets/${BUCKET_ID}/files/${uploadedFile.$id}/view?project=${PROJECT_ID}`;
     
                 console.log("File uploaded successfully:", uploadedFile);
@@ -152,12 +156,15 @@ const RegisterForm = ({ user }: { user: User }) => {
                     };
                     
                     // Store patient data in the database
-                    const response = await databases.updateDocument(
-                        DATABASE_ID,
-                        PATIENT_COLLECTION_ID,
-                        parsedInfo.$id,
-                        patientData
-                    );
+                    // const response = await databases.updateDocument(
+                    //     DATABASE_ID,
+                    //     PATIENT_COLLECTION_ID,
+                    //     parsedInfo.$id,
+                    //     patientData
+                    // );
+                    const response = await updatePatient(parsedInfo.$id, patientData);
+
+                    
 
                     setIsLoading(false);
 
@@ -217,11 +224,15 @@ const RegisterForm = ({ user }: { user: User }) => {
 
     const getDoctors = async()=> {
         try {
-            let response = await databases.listDocuments(
-                DATABASE_ID,
-                DOCTOR_COLLECTION_ID,
-                [Query.isNotNull("image")]
-            );
+            // let response = await databases.listDocuments(
+            //     DATABASE_ID,
+            //     DOCTOR_COLLECTION_ID,
+            //     [Query.isNotNull("image")]
+            // );
+            let response = await getDoctorLanding();
+
+            
+
             const doctors2: DoctorType[] = response.documents.map((doc) => ({
                 $id: doc.$id,
                 name: doc.name,
@@ -248,11 +259,14 @@ const RegisterForm = ({ user }: { user: User }) => {
         if (localInfo) {
             try {
                 const parsedInfo = JSON.parse(localInfo);
-                const checkInfo = await databases.listDocuments(
-                    DATABASE_ID,
-                    PATIENT_COLLECTION_ID,
-                    [Query.equal("email", [parsedInfo.email])]
-                );
+                // const checkInfo = await databases.listDocuments(
+                //     DATABASE_ID,
+                //     PATIENT_COLLECTION_ID,
+                //     [Query.equal("email", [parsedInfo.email])]
+                // );
+
+                const checkInfo = await GetSinglePatient(parsedInfo.email);
+
 
                 if (checkInfo.documents.length > 0) {
                     const userInfo = checkInfo.documents[0];

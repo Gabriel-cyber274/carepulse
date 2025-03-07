@@ -17,6 +17,7 @@ import { createUser } from "@/lib/actions/patient.actions";
 import {databases, DATABASE_ID, PATIENT_COLLECTION_ID, DOCTOR_COLLECTION_ID, account, PATIENT_OTP_ID, DOCTOR_OTP_ID} from '../../lib/appwriteConfig2'
 import { ID, Query } from "appwrite";
 import emailjs from '@emailjs/browser';
+import {checkInfoDoctorLogin, checkInfoPatientLogin, createDoctorAcc, createDoctorOtp, createPatientAcc, createPatientOtp, createUserAcc, validateOtp} from '../../lib/actions/apis';
 
 
 export enum FormFieldType {
@@ -148,19 +149,26 @@ const PatientForm: React.FC<PatientFormProps> = ({ type }) => {
       const userData = { name, email, phone };
   
       // Check if the doctor already exists
-      const checkInfo = await databases.listDocuments(
-        DATABASE_ID,
-        DOCTOR_COLLECTION_ID,
-        [Query.equal("email", [email]), Query.equal("phone", [phone])]
-      );
+      // const checkInfo = await databases.listDocuments(
+      //   DATABASE_ID,
+      //   DOCTOR_COLLECTION_ID,
+      //   [Query.equal("email", [email]), Query.equal("phone", [phone])]
+      // );
+
+      const checkInfo = await checkInfoDoctorLogin(email, phone);
+
   
       let doctorData;
       let isNewDoctor = checkInfo.total === 0;
   
       if (isNewDoctor) {
         // Create new account and doctor record
-        const accountResult = await account.create(ID.unique(), email, `${email}${phone}`, name);
-        doctorData = await databases.createDocument(DATABASE_ID, DOCTOR_COLLECTION_ID, ID.unique(), userData);
+        // const accountResult = await account.create(ID.unique(), email, `${email}${phone}`, name);
+        await createUserAcc(email, phone, name);
+
+        // doctorData = await databases.createDocument(DATABASE_ID, DOCTOR_COLLECTION_ID, ID.unique(), userData);
+        doctorData = await createDoctorAcc(userData);
+        
       } else {
         // Get existing doctor data
         doctorData = checkInfo.documents[0];
@@ -168,7 +176,9 @@ const PatientForm: React.FC<PatientFormProps> = ({ type }) => {
   
       // Generate OTP and send email
       const otp = generateOTP();
-      await databases.createDocument(DATABASE_ID, DOCTOR_OTP_ID, ID.unique(), { doctor: doctorData.$id, otp });
+      // await databases.createDocument(DATABASE_ID, DOCTOR_OTP_ID, ID.unique(), { doctor: doctorData.$id, otp });
+      await createDoctorOtp(doctorData.$id, otp);
+      
   
       emailjs.send(
         'service_9efki63', 
@@ -210,24 +220,34 @@ const PatientForm: React.FC<PatientFormProps> = ({ type }) => {
       const userData = { name, email, phone };
   
       // Check if the user already exists
-      const checkInfo = await databases.listDocuments(DATABASE_ID, PATIENT_COLLECTION_ID, [
-        Query.equal("email", [email]),
-        Query.equal("phone", [phone]),
-      ]);
-  
+      // const checkInfo = await databases.listDocuments(DATABASE_ID, PATIENT_COLLECTION_ID, [
+      //   Query.equal("email", [email]),
+      //   Query.equal("phone", [phone]),
+      // ]);
+
+      const checkInfo = await checkInfoPatientLogin(email, phone); 
+
+
       let patientData;
   
       if (checkInfo.total === 0) {
         // Create a new user & patient record
-        await account.create(ID.unique(), email, `${email}${phone}`, name);
-        patientData = await databases.createDocument(DATABASE_ID, PATIENT_COLLECTION_ID, ID.unique(), userData);
+        // await account.create(ID.unique(), email, `${email}${phone}`, name);
+        await createUserAcc(email, phone, name);
+
+        // patientData = await databases.createDocument(DATABASE_ID, PATIENT_COLLECTION_ID, ID.unique(), userData);
+
+        patientData = await createPatientAcc(userData);
+        
       } else {
         patientData = checkInfo.documents[0]; // Existing patient
       }
   
       // Generate OTP and store it
       const otp = generateOTP();
-      await databases.createDocument(DATABASE_ID, PATIENT_OTP_ID, ID.unique(), { patient: patientData.$id, otp });
+      // await databases.createDocument(DATABASE_ID, PATIENT_OTP_ID, ID.unique(), { patient: patientData.$id, otp });
+
+      await createPatientOtp(patientData.$id, otp);
   
       // Send OTP email
       await emailjs.send("service_9efki63", "template_l0j4xya", {
@@ -268,11 +288,16 @@ const PatientForm: React.FC<PatientFormProps> = ({ type }) => {
       //   otp.join('')
       // );
 
-      const checkInfo = await databases.listDocuments(
-        DATABASE_ID,
-        isDoctor? DOCTOR_OTP_ID: PATIENT_OTP_ID,
-        [isDoctor? Query.equal("doctor", linkId) : Query.equal("patient", linkId)]
-      );
+      // const checkInfo = await databases.listDocuments(
+      //   DATABASE_ID,
+      //   isDoctor? DOCTOR_OTP_ID: PATIENT_OTP_ID,
+      //   [isDoctor? Query.equal("doctor", linkId) : Query.equal("patient", linkId)]
+      // );
+
+
+      const checkInfo = await validateOtp(isDoctor, linkId);
+
+      
       
       const recent = checkInfo.documents[checkInfo.documents.length-1];
 

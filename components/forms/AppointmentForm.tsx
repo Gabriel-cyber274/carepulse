@@ -26,6 +26,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import {databases, DATABASE_ID, PATIENT_COLLECTION_ID, APPOINTMENT_COLLECTION_ID, BUCKET_ID, storage, ENDPOINT, PROJECT_ID, DOCTOR_COLLECTION_ID, API_KEY} from '../../lib/appwriteConfig2'
 import { InputFile } from "node-appwrite/file"
 import { DoctorType } from "@/types/appwrite.types"
+import { AppointmentCreate, getDoctorLanding } from "@/lib/actions/apis"
 
 
 const AppointmentForm = ({
@@ -109,12 +110,15 @@ const AppointmentForm = ({
                     status: status as Status,
                 }
 
-                let response = await databases.createDocument(
-                    DATABASE_ID,
-                    APPOINTMENT_COLLECTION_ID,
-                    ID.unique(),
-                    appointmentData
-                  )
+                // let response = await databases.createDocument(
+                //     DATABASE_ID,
+                //     APPOINTMENT_COLLECTION_ID,
+                //     ID.unique(),
+                //     appointmentData
+                //   )
+                  let response = await AppointmentCreate(appointmentData);
+
+                  
 
                 setIsLoading(false);
 
@@ -188,11 +192,15 @@ const AppointmentForm = ({
 
     const getDoctors = async()=> {
         try {
-            let response = await databases.listDocuments(
-                DATABASE_ID,
-                DOCTOR_COLLECTION_ID,  
-                [Query.isNotNull("image")]
-            );
+            // let response = await databases.listDocuments(
+            //     DATABASE_ID,
+            //     DOCTOR_COLLECTION_ID,  
+            //     [Query.isNotNull("image")]
+            // );
+
+            let response = await getDoctorLanding();
+
+            
             const doctors2: DoctorType[] = response.documents.map((doc) => ({
                 $id: doc.$id,
                 name: doc.name,

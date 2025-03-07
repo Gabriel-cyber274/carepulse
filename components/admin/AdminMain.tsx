@@ -10,6 +10,7 @@ import { toast,} from 'react-toastify';
 import { useRouter } from "next/navigation";
 
 import 'react-toastify/dist/ReactToastify.css';
+import { AppointmentGet, GetSingleDoctor } from '@/lib/actions/apis';
 
 interface UserDetails {
     $collectionId: string;
@@ -119,8 +120,8 @@ function AdminMain() {
         if(localStorage.doctorInfo == undefined) {
             router.replace('/doctor');
         }else {
-            getUsetInfo();
             getAppointment();
+            getUsetInfo();
         }
       }, [cancelModal, scheduleModal])
 
@@ -129,11 +130,12 @@ function AdminMain() {
         if (localInfo) {
             try {
                 const parsedInfo = JSON.parse(localInfo);
-                const response = await databases.listDocuments(
-                    DATABASE_ID,
-                    APPOINTMENT_COLLECTION_ID,
-                    [Query.equal("primaryPhysician", [parsedInfo.$id]), Query.orderDesc("$createdAt")]
-                );
+                // const response = await databases.listDocuments(
+                //     DATABASE_ID,
+                //     APPOINTMENT_COLLECTION_ID,
+                //     [Query.equal("primaryPhysician", [parsedInfo.$id]), Query.orderDesc("$createdAt")]
+                // );
+                const response = await AppointmentGet(parsedInfo.$id);
 
                 const appointments = response.documents.map((doc) => ({
                     $id: doc.$id,
@@ -164,11 +166,13 @@ function AdminMain() {
         if (localInfo) {
             try {
                 const parsedInfo = JSON.parse(localInfo);
-                const checkInfo = await databases.listDocuments(
-                    DATABASE_ID,
-                    DOCTOR_COLLECTION_ID,
-                    [Query.equal("email", [parsedInfo.email])]
-                );
+                // const checkInfo = await databases.listDocuments(
+                //     DATABASE_ID,
+                //     DOCTOR_COLLECTION_ID,
+                //     [Query.equal("email", [parsedInfo.email])]
+                // );
+                
+                const checkInfo = await GetSingleDoctor(parsedInfo.email);
     
                 if (checkInfo.documents.length > 0) {
                     const userInfo = checkInfo.documents[0] as UserDetails;

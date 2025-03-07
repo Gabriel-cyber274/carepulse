@@ -63,7 +63,6 @@ function MainLanding() {
       }, [])
 
     const getDoctors = async()=> {
-
         try {
             setIsLoading(true);
 
@@ -75,7 +74,6 @@ function MainLanding() {
 
             let response = await getDoctorLanding();
 
-            console.log(response, 'active')
             
             const doctors2: DoctorType[] = response.documents.map((doc) => ({
                 $id: doc.$id,
