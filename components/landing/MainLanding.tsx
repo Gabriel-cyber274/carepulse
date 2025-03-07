@@ -6,6 +6,7 @@ import { DoctorType } from '@/types/appwrite.types';
 import { ID, Query } from "appwrite";
 import {databases, DATABASE_ID, PATIENT_COLLECTION_ID, BUCKET_ID, storage, ENDPOINT, PROJECT_ID, DOCTOR_COLLECTION_ID, API_KEY} from '../../lib/appwriteConfig2'
 import { toast, ToastContainer } from 'react-toastify';
+import {getDoctorLanding} from '../../lib/actions/apis';
 
 
 
@@ -61,15 +62,21 @@ function MainLanding() {
         getDoctors();
       }, [])
 
-      const getDoctors = async()=> {
+    const getDoctors = async()=> {
+
         try {
             setIsLoading(true);
 
-            let response = await databases.listDocuments(
-                DATABASE_ID,
-                DOCTOR_COLLECTION_ID,
-                [Query.isNotNull("image")]
-            );
+            // let response = await databases.listDocuments(
+            //     DATABASE_ID,
+            //     DOCTOR_COLLECTION_ID,
+            //     [Query.isNotNull("image")]
+            // );
+
+            let response = await getDoctorLanding();
+
+            console.log(response, 'active')
+            
             const doctors2: DoctorType[] = response.documents.map((doc) => ({
                 $id: doc.$id,
                 name: doc.name,
