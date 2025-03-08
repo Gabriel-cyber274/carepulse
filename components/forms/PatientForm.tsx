@@ -181,10 +181,10 @@ const PatientForm: React.FC<PatientFormProps> = ({ type }) => {
       
   
       emailjs.send(
-        'service_9efki63', 
-        'template_l0j4xya', 
+        'service_7xurynp', 
+        'template_558bwkp', 
         { user_name: doctorData.name, email_to: doctorData.email, message: `Your OTP is: ${otp}` }, 
-        'Pkq14uLPi-Jjfaz-J'
+        'feFJg8wKKR-XRY52G'
       ).then(
         response => console.log('SUCCESS!', response.status, response.text),
         err => console.log('FAILED...', err)
@@ -250,11 +250,11 @@ const PatientForm: React.FC<PatientFormProps> = ({ type }) => {
       await createPatientOtp(patientData.$id, otp);
   
       // Send OTP email
-      await emailjs.send("service_9efki63", "template_l0j4xya", {
+      await emailjs.send("service_7xurynp", "template_558bwkp", {
         user_name: patientData.name,
         email_to: patientData.email,
         message: `Your OTP is: ${otp}`,
-      }, "Pkq14uLPi-Jjfaz-J");
+      }, "feFJg8wKKR-XRY52G");
   
       // Store user info in localStorage
       localStorage.setItem("userInfo", JSON.stringify(patientData));
