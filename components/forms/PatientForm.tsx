@@ -381,7 +381,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ type }) => {
             <path d="M14.1667 14.1665L25.8334 25.8332M25.8334 14.1665L14.1667 25.8332" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
           </div>
-          <p>Please enter the OTP sent to your registered mobile number.</p>
+          <p>Please enter the OTP sent to your registered email address.</p>
           <div className="inputs">
               {otp.map((digit, index) => (
               <input
