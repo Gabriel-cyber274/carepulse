@@ -14,7 +14,7 @@ const fontSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "CarePulse",
+  title: "ViePulse",
   description: "A patient management system",
 };
 

@@ -7,6 +7,7 @@ import { ID, Query } from "appwrite";
 import {databases, DATABASE_ID, PATIENT_COLLECTION_ID, BUCKET_ID, storage, ENDPOINT, PROJECT_ID, DOCTOR_COLLECTION_ID, API_KEY} from '../../lib/appwriteConfig2'
 import { toast, ToastContainer } from 'react-toastify';
 import {getDoctorLanding} from '../../lib/actions/apis';
+import HospitalMap from './MapSection';
 
 
 
@@ -290,13 +291,13 @@ function MainLanding() {
                 <h1>Book your medical appointment today</h1>
                 <div className="buttons">
                     <a href="tel:+6285755500817" style={{ textDecoration: "none" }}>
-                        <button className='first'>
+                        <button className='first flex align-center justify-center'>
                             <img className='me-3' src="/assets/images/phoneA.png" alt="" />
                             Book an appointment
                         </button>
                     </a>
                     <Link href='/patient'>
-                        <button>
+                        <button className='flex align-center justify-center'>
                             <img className='me-3' src="/assets/images/personA.png" alt="" />
                             Book an appointment
                         </button>
@@ -304,6 +305,7 @@ function MainLanding() {
                 </div>
             </div>
         </div>
+        <HospitalMap />
         <div className="fifth_sec">
             <div className="cont">
                 <div className="first">

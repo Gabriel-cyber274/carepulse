@@ -107,6 +107,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ type }) => {
     localStorage.removeItem('doctorInfo')
     localStorage.removeItem('userInfo')
     localStorage.removeItem('expiresAt')
+    localStorage.removeItem("view_patient");
   }, [])
 
 
@@ -183,7 +184,11 @@ const PatientForm: React.FC<PatientFormProps> = ({ type }) => {
       emailjs.send(
         'service_7xurynp', 
         'template_558bwkp', 
-        { user_name: doctorData.name, email_to: doctorData.email, message: `Your OTP is: ${otp}` }, 
+        { user_name: doctorData.name, 
+          email_to: doctorData.email,
+          pre_message: 'Please enter the OTP sent.',
+          subject: 'Otp verification', 
+          message: `Your OTP is: ${otp}` }, 
         'feFJg8wKKR-XRY52G'
       ).then(
         response => console.log('SUCCESS!', response.status, response.text),
@@ -253,6 +258,8 @@ const PatientForm: React.FC<PatientFormProps> = ({ type }) => {
       await emailjs.send("service_7xurynp", "template_558bwkp", {
         user_name: patientData.name,
         email_to: patientData.email,
+        pre_message: 'Please enter the OTP sent.',
+        subject: 'Otp verification',
         message: `Your OTP is: ${otp}`,
       }, "feFJg8wKKR-XRY52G");
   

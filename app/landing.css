@@ -579,6 +579,40 @@ nav .cont .number img {
     color: #808080;
 }
 
+
+.land_cont .map_sec {
+    display: flex;
+    justify-content: center;
+}
+.land_cont .map_sec .cont {
+    width: 90%;
+    padding: 30px 0px;
+}
+.land_cont .map_sec .cont  .input-cont label {
+    font-weight: 600;
+    font-size: 28.3px;
+    line-height: 34.25px;
+    text-align: center;
+    margin: 20px 0px;
+    letter-spacing: 0%;
+    color: #2C5046;
+    display: block;
+}
+.land_cont .map_sec .cont  .input-cont input {
+    width: 100%;
+    background-color: transparent;
+    height: 54px;
+    border: 1px solid grey;
+    padding: 16px;
+    border-radius: 10px;
+    outline: none;
+    font-weight: 600;
+    font-size: 20.8px;
+    line-height: 25.17px;
+    letter-spacing: 0%;
+    color: #405C54;
+}
+
 @media (max-width: 1231px) {
     .land_cont .first_sec .main_first .cont .second img {
         width: 359px;

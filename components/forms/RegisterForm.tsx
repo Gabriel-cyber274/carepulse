@@ -623,42 +623,46 @@ const RegisterForm = ({ user }: { user: User }) => {
                     )}
                 />
 
-                <section className="space-y-6">
-                    <div className="mb-9 space-y-1">
-                        <h2 className="sub-header">Consent and Privacy</h2>
-                    </div>
-                </section>
+                {localStorage.view_patient !== undefined?  <></>:<>
+                    <section className="space-y-6">
+                        <div className="mb-9 space-y-1">
+                            <h2 className="sub-header">Consent and Privacy</h2>
+                        </div>
+                    </section>
 
-                <CustomFormField
-                    fieldType={FormFieldType.CHECKBOX}
-                    control={form.control}
-                    name="treatmentConsent"
-                    label="I consent to receive treatment for my health condition."
-                />
-
-                <CustomFormField
-                    fieldType={FormFieldType.CHECKBOX}
-                    control={form.control}
-                    name="disclosureConsent"
-                    label="I consent to the use of my health information for treatment."
-                />
-
-                <div style={{marginBottom: '10px'}}>
                     <CustomFormField
                         fieldType={FormFieldType.CHECKBOX}
                         control={form.control}
-                        name="privacyConsent"
-                        label="I acknowledge that I have reviewed and agree to the privacy policy."
+                        name="treatmentConsent"
+                        label="I consent to receive treatment for my health condition."
                     />
-                </div>
-                
-                <a href="/assets/images/viepulse.pdf" target="_blank" style={{paddingTop: '10px', color: '#5353d9', textDecoration: 'underline'}}>view privacy policy</a>
 
-                <SubmitButton
-                    isLoading={isLoading}
-                >
-                    Get Started
-                </SubmitButton>
+                    <CustomFormField
+                        fieldType={FormFieldType.CHECKBOX}
+                        control={form.control}
+                        name="disclosureConsent"
+                        label="I consent to the use of my health information for treatment."
+                    />
+
+                    <div style={{marginBottom: '10px'}}>
+                        <CustomFormField
+                            fieldType={FormFieldType.CHECKBOX}
+                            control={form.control}
+                            name="privacyConsent"
+                            label="I acknowledge that I have reviewed and agree to the privacy policy."
+                        />
+                    </div>
+                    
+                    <a href="/assets/images/viepulse.pdf" target="_blank" style={{paddingTop: '10px', color: '#5353d9', textDecoration: 'underline'}}>view privacy policy</a>
+
+                    <SubmitButton
+                        isLoading={isLoading}
+                    >
+                        Get Started
+                    </SubmitButton>
+                
+                </>}
+
             </form>
 
             <ToastContainer />

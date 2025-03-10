@@ -16,34 +16,39 @@ import { z } from "zod";
 import Image from 'next/image';
 import { CancelModalFormValidation } from "@/lib/validation";
 import {databases, DATABASE_ID, PATIENT_COLLECTION_ID, BUCKET_ID, storage, ENDPOINT, PROJECT_ID, DOCTOR_COLLECTION_ID, APPOINTMENT_COLLECTION_ID} from '../../lib/appwriteConfig2'
+import { AppointmentUpdate } from '@/lib/actions/apis';
+import emailjs from '@emailjs/browser';
+
 
 
 
 
 interface Appointment {
-    $id: string;
-    $createdAt: string;
-    $updatedAt: string;
-    patient: {
-      name: string;
-      phone: string;
-      birthDate: string;
-      gender: string;
-      address: string;
-    };
-    primaryPhysician: {
-      name: string;
-      image: string;
-      area_of_specialization: string;
-      hospital_name: string;
-      hospital_location: string;
-    };
-    reason: string;
-    schedule: string;
-    status: string;
-    cancel_reason: string | null;
-    note: string;
-  }
+  $id: string;
+  $createdAt: string;
+  $updatedAt: string;
+  patient: {
+    name: string;
+    phone: string;
+    email: string;
+    birthDate: string;
+    gender: string;
+    address: string;
+  };
+  primaryPhysician: {
+    name: string;
+    image: string;
+    email: string;
+    area_of_specialization: string;
+    hospital_name: string;
+    hospital_location: string;
+  };
+  reason: string;
+  schedule: any;
+  status: string;
+  cancel_reason: string | null;
+  note: string;
+}
 
 interface ScheduleModalProps {
     showCancelModal: (show: boolean) => void; // Function to toggle modal visibility
@@ -94,18 +99,36 @@ const CancelModal: React.FC<ScheduleModalProps> = ({
             
             const appointData = {
                 ...values,
+                cancel_reason: values.cancel_reason,
                 status: "cancelled"
             };
             
-            const response = await databases.updateDocument(
-                DATABASE_ID,
-                APPOINTMENT_COLLECTION_ID,
-                appointmentDetails!.$id,
-                appointData
-            );
+            // const response = await databases.updateDocument(
+            //     DATABASE_ID,
+            //     APPOINTMENT_COLLECTION_ID,
+            //     appointmentDetails!.$id,
+            //     appointData
+            // );
+            let response = await AppointmentUpdate(appointmentDetails!.$id, appointData);
 
             setIsLoading(false);
             if(response) {
+              await emailjs.send("service_7xurynp", "template_558bwkp", {
+                user_name: appointmentDetails?.patient.name,
+                email_to: appointmentDetails?.patient.email,
+                pre_message: "Important: Your appointment has been canceled.",
+                subject: "Appointment Cancellation Notification",
+                message: `  
+                    We regret to inform you that your scheduled appointment with **${appointmentDetails?.primaryPhysician.name}** has been **canceled**.  
+            
+                    📅 **Original Date & Time:** ${new Date(appointmentDetails?.schedule).toLocaleString()}  
+                    ❌ **Reason for Cancellation:** ${values.cancel_reason}  
+            
+                    We sincerely apologize for any inconvenience this may have caused.  
+                `,
+            }, "feFJg8wKKR-XRY52G");
+            
+            
                 toaster('successful', 'success');
                 closeModal();
             }

@@ -166,3 +166,75 @@ export const AppointmentGet = async(id:any)=> {
   
     return response;
 }
+
+
+export const AppointmentUpdate = async(id:any, data:any)=> {
+    const response = await databases.updateDocument(
+        DATABASE_ID,
+        APPOINTMENT_COLLECTION_ID,
+        id,
+        data
+      );
+  
+    return response;
+}
+
+
+export default async function getMeetingLink(appointmentDetails: any, appointmentData: any): Promise<string | { error: any }> {
+    const clientId = process.env.ZOOM_CLIENT_ID;
+    const clientSecret = process.env.ZOOM_CLIENT_SECRET;
+    const accountId = process.env.ZOOM_ACCOUNT_ID;
+
+    try {
+        const tokenResponse = await fetch(`https://zoom.us/oauth/token?grant_type=account_credentials&account_id=${accountId}`, {
+            method: "POST",
+            headers: {
+                "Authorization": "Basic " + Buffer.from(`${clientId}:${clientSecret}`).toString("base64"),
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+        });
+
+        if (!tokenResponse.ok) {
+            const errorData = await tokenResponse.json();
+            console.error("Failed to fetch Zoom token:", errorData);
+            return { error: "Failed to fetch Zoom token" };
+        }
+
+        const { access_token } = await tokenResponse.json();
+
+        const meetingResponse = await fetch("https://api.zoom.us/v2/users/me/meetings", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${access_token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                topic: `Appointment with ${appointmentDetails?.primaryPhysician.name}`,
+                type: 2, 
+                start_time: appointmentData.schedule.toISOString(),
+                duration: 30,
+                timezone: "UTC",
+                agenda: appointmentData.reason,
+                settings: {
+                    host_video: true,
+                    participant_video: true,
+                    join_before_host: true, // Keep this for flexibility
+                },
+            }),
+        });
+
+        if (!meetingResponse.ok) {
+            const errorData = await meetingResponse.json();
+            console.error("Failed to create Zoom meeting:", errorData);
+            return { error: "Failed to create Zoom meeting" };
+        }
+
+        const { join_url } = await meetingResponse.json();
+        return join_url;
+
+    } catch (error) {
+        console.error("Error in getMeetingLink:", error);
+        return { error: "Internal Server Error" };
+    }
+}
+

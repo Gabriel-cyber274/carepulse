@@ -38,6 +38,7 @@ interface UserDetails {
     patient: {
       name: string;
       phone: string;
+      email: string;
       birthDate: string;
       gender: string;
       address: string;
@@ -45,6 +46,7 @@ interface UserDetails {
     primaryPhysician: {
       name: string;
       image: string;
+      email: string;
       area_of_specialization: string;
       hospital_name: string;
       hospital_location: string;
@@ -113,6 +115,8 @@ function AdminMain() {
                 router.replace('/doctor');
             }
         }
+
+        localStorage.removeItem("view_patient");
 
 
 
@@ -197,6 +201,14 @@ function AdminMain() {
       }
 
     
+      const viewPatient = (patient:any)=> {
+        console.log(patient.patient.$id);
+        localStorage.setItem('view_patient', patient.patient.$id);
+        // Store user info in localStorage
+        localStorage.setItem("userInfo", JSON.stringify(patient.patient));
+        localStorage.setItem("expiresAt", (Date.now() + 3 * 60 * 60 * 1000).toString());
+        router.push(`/patients/${patient.patient.$id}/register`)
+      }
 
   return (
     <div className='main_admin'>
@@ -257,7 +269,7 @@ function AdminMain() {
                     {currentItems.map((appoint, index)=> (
                         <div className={`table_body ${index+1 % 2 == 0 && 'gray_ish'}`} key={index}>
                             <h2>
-                                <div className="patient_name">
+                                <div className="patient_name" onClick={()=> viewPatient(appoint)}>
                                     <div className="circle">
                                     {appoint.patient.name
                                     .split(" ")
@@ -299,10 +311,10 @@ function AdminMain() {
                                 </div>
                             </h2>
                             <h2>
-                                <div className="action">
+                                {appoint.status=="pending" && <div className="action">
                                     <h3 className='green' onClick={()=>showScheduleFunc(appoint)}>Schedule</h3>
                                     <h3 onClick={()=>showCancelFunc(appoint)}>Cancel</h3>
-                                </div>
+                                </div>}
                             </h2>
                         </div>
                     ))}

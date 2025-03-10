@@ -13,12 +13,16 @@ import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { SelectItem } from "@/components/ui/select"
+import emailjs from '@emailjs/browser';
 
 import Image from 'next/image';
 import { getAppointmentSchema } from "@/lib/validation";
 import {databases, DATABASE_ID, PATIENT_COLLECTION_ID, BUCKET_ID, storage, ENDPOINT, PROJECT_ID, DOCTOR_COLLECTION_ID, APPOINTMENT_COLLECTION_ID} from '../../lib/appwriteConfig2'
 import { DoctorType } from "@/types/appwrite.types"
 import { Query } from 'appwrite';
+import getZoomAccess, { AppointmentUpdate, getDoctorLanding } from '@/lib/actions/apis';
+import { EmailJSResponseStatus } from '@emailjs/browser';
+import getMeetingLink from '@/lib/actions/apis';
 
 
 
@@ -30,6 +34,7 @@ interface Appointment {
     patient: {
       name: string;
       phone: string;
+      email: string;
       birthDate: string;
       gender: string;
       address: string;
@@ -37,6 +42,7 @@ interface Appointment {
     primaryPhysician: {
       name: string;
       image: string;
+      email: string;
       area_of_specialization: string;
       hospital_name: string;
       hospital_location: string;
@@ -108,35 +114,75 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
         showScheduleModal(false);   
     }
 
+
+
     async function onSubmit(values: z.infer<typeof AppointmentFormValidation>) {
         try {
             setIsLoading(true);
 
             const appointmentData = {
-                primaryPhysician: doctorsInfo.filter((doc)=> doc.name == values.primaryPhysician)[0].$id,
+                // primaryPhysician: doctorsInfo.filter((doc)=> doc.name == values.primaryPhysician)[0].$id,
                 schedule: new Date(values.schedule),
                 reason: values.reason!,
                 status: "scheduled"
             }
 
-            let response = await databases.updateDocument(
-                DATABASE_ID,
-                APPOINTMENT_COLLECTION_ID,
-                appointmentDetails!.$id,
-                appointmentData
-              )
+            // let response = await databases.updateDocument(
+            //     DATABASE_ID,
+            //     APPOINTMENT_COLLECTION_ID,
+            //     appointmentDetails!.$id,
+            //     appointmentData
+            //   );
+              let response = await AppointmentUpdate(appointmentDetails!.$id, appointmentData);
+              
+
 
               
             setIsLoading(false);
             if(response) {
+                const meetingLink = await getMeetingLink(appointmentDetails, appointmentData);
+                console.log(meetingLink, 'active link');
+
+                  await emailjs.send("service_7xurynp", "template_558bwkp", {
+                    user_name: appointmentDetails?.patient.name,
+                    email_to: appointmentDetails?.patient.email,
+                    pre_message: "Your appointment has been successfully scheduled.",
+                    subject: "Appointment Confirmation",
+                    message: `  
+                  We are pleased to confirm your appointment with **${appointmentDetails?.primaryPhysician.name}**.  
+                  
+                  📅 **Date & Time:** ${appointmentData.schedule.toLocaleString()}  
+                  🔗 **Meeting Link:** [Join Meeting](${meetingLink}) 
+                  `,
+                  }, "feFJg8wKKR-XRY52G");
+
+
+                  await emailjs.send("service_7xurynp", "template_558bwkp", {
+                    user_name: appointmentDetails?.primaryPhysician.name,
+                    email_to: appointmentDetails?.primaryPhysician.email,
+                    pre_message: "A new appointment has been scheduled.",
+                    subject: "New Appointment Scheduled",
+                    message: `  
+                        A new appointment has been scheduled with the following details:  
+                
+                        📅 **Date & Time:** ${appointmentData.schedule.toLocaleString()}  
+                        🏥 **Patient Name:** ${appointmentDetails?.patient.name}  
+                        📧 **Patient Email:** ${appointmentDetails?.patient.email}  
+                        🔗 **Meeting Link:** [Join Meeting](${meetingLink})  
+                
+                        Please ensure availability at the scheduled time. If any changes are needed, kindly reach out to the patient.  
+                    `,
+                }, "feFJg8wKKR-XRY52G");
+                
+
+                  
                 toaster('successful', 'success');
                 closeModal();
             }
         } catch (error) {
             toaster(JSON.stringify(error), 'err');
             setIsLoading(false);
-            console.error(error);
-            
+            console.error(error); 
         }
     }
 
@@ -151,11 +197,13 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
 
     const getDoctors = async()=> {
         try {
-            let response = await databases.listDocuments(
-                DATABASE_ID,
-                DOCTOR_COLLECTION_ID,  
-                [Query.isNotNull("image")]
-            );
+            // let response = await databases.listDocuments(
+            //     DATABASE_ID,
+            //     DOCTOR_COLLECTION_ID,  
+            //     [Query.isNotNull("image")]
+            // );
+            
+            let response = await getDoctorLanding();
             const doctors2: DoctorType[] = response.documents.map((doc) => ({
                 $id: doc.$id,
                 name: doc.name,
@@ -219,7 +267,7 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
                     <>
-                        <CustomFormField
+                        {/* <CustomFormField
                             fieldType={FormFieldType.SELECT}
                             control={form.control}
                             name="primaryPhysician"
@@ -244,7 +292,7 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
                                     </div>
                                 </SelectItem>
                             ))}
-                        </CustomFormField>
+                        </CustomFormField> */}
 
                         <CustomFormField
                                 fieldType={FormFieldType.TEXTAREA}
