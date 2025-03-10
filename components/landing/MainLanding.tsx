@@ -162,9 +162,9 @@ function MainLanding() {
                         </a>
                     </div>
                     
-                    <a href="tel:+6285755500817" style={{ textDecoration: "none" }} className="number">
+                    <a href="tel:+2348035012942" style={{ textDecoration: "none" }} className="number">
                         <img src="/assets/images/phone.png" alt="" />
-                        <h4>+6285755500817</h4>
+                        <h4>+2348035012942</h4>
                     </a>
                 </div>
             </nav>
@@ -290,7 +290,7 @@ function MainLanding() {
                 <h2>BOOK NOW</h2>
                 <h1>Book your medical appointment today</h1>
                 <div className="buttons">
-                    <a href="tel:+6285755500817" style={{ textDecoration: "none" }}>
+                    <a href="tel:+2348035012942" style={{ textDecoration: "none" }}>
                         <button className='first flex align-center justify-center'>
                             <img className='me-3' src="/assets/images/phoneA.png" alt="" />
                             Book an appointment
