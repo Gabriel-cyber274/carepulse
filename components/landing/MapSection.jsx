@@ -106,6 +106,7 @@ const HospitalMap = () => {
                     />
                     <button
                         className="mt-2 p-2 bg-blue-600 text-white rounded"
+                        style={{backgroundColor: '#052C21'}}
                         onClick={handleSearch}
                     >
                         Search
