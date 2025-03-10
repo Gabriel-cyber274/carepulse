@@ -102,8 +102,11 @@ const HospitalMap = () => {
                 <div className="map-cont mt-3" style={{ height: "400px" }}>
                     <GoogleMap
                         mapContainerStyle={containerStyle}
-                        center={userLocation || { lat: 37.7749, lng: -122.4194 }}
-                        zoom={userLocation ? 14 : 10}
+                        center={location || userLocation || { lat: 37.7749, lng: -122.4194 }} // Center updates when location changes
+                        zoom={location ? 20 : userLocation ? 14 : 10} 
+
+                        // center={userLocation || { lat: 37.7749, lng: -122.4194 }}
+                        // zoom={userLocation ? 14 : 10}
                     >
                         {userLocation && <Marker position={userLocation} />}
                         {location && <Marker position={location} />}

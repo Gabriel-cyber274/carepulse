@@ -63,7 +63,7 @@ function Page() {
     <div className='success_main_cont'>
             <div className="header" onClick={goBack}>
                 <img src="/assets/images/Logomark.png" alt="pic" />
-                <h2>HeliCare</h2>
+                <h2>ViePulse</h2>
             </div>
             <div className="center_stuff">
                 <div className="check">
