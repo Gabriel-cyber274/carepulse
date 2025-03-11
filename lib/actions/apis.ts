@@ -1,5 +1,6 @@
 "use server";
 
+import { InputFile } from 'node-appwrite/file';
 import {account, databases, storage} from '../appwriteConfig2'
 import { ID, Query } from "appwrite";
 
@@ -9,11 +10,14 @@ const {
     PATIENT_COLLECTION_ID = "",
     DOCTOR_COLLECTION_ID = "",
     APPOINTMENT_COLLECTION_ID = "",
-    BUCKET_ID = "",
+    // BUCKET_ID = "",
     PATIENT_OTP_ID = "",
     DOCTOR_OTP_ID = "",
-    ENDPOINT = "",
+    // ENDPOINT = "",
     API_KEY = "",
+    
+    NEXT_PUBLIC_BUCKET_ID: BUCKET_ID,
+    NEXT_PUBLIC_ENDPOINT: ENDPOINT,
 } = process.env;
 
   
@@ -92,12 +96,19 @@ export const validateOtp = async(isDoctor:any, linkId:any)=> {
 
 
 export const uploadFile = async(fileToUpload:any)=> {
+    // const inputFile = InputFile.fromBuffer(
+    //     fileToUpload?.get("blobFile") as Blob,
+    //     fileToUpload?.get("fileName") as string
+    //   );
+
     const response = await storage.createFile(
         BUCKET_ID,
         ID.unique(),
         fileToUpload
+        // inputFile
     );
   
+    console.log(response, 'ok')
     return response;
 }
 

@@ -108,16 +108,21 @@ const DoctorForm = ({ user }: { user: User }) => {
     try {
         let fileUrl = "";
         if (fileToUpload) {
+            let BUCKET_ID2 = process.env.NEXT_PUBLIC_BUCKET_ID;
+            let ENDPOINT2 = process.env.NEXT_PUBLIC_ENDPOINT;
+            let PROJECT_ID2 = '678ab3270032f5946131';
             // Upload file
-            // const uploadedFile = await storage.createFile(
-            //     BUCKET_ID,
-            //     ID.unique(),
-            //     fileToUpload
-            // );
-            const uploadedFile = await uploadFile(fileToUpload);
+            const uploadedFile = await storage.createFile(
+                BUCKET_ID2,
+                ID.unique(),
+                fileToUpload
+            );
+            
+            // const uploadedFile = await uploadFile(fileToUpload);
 
             
-            fileUrl = `${ENDPOINT}/storage/buckets/${BUCKET_ID}/files/${uploadedFile.$id}/view?project=${PROJECT_ID}`;
+            fileUrl = `${ENDPOINT2}/storage/buckets/${BUCKET_ID2}/files/${uploadedFile.$id}/view?project=${PROJECT_ID2}`;
+            
 
             console.log("File uploaded successfully:", uploadedFile);
             console.log("File URL:", fileUrl);
