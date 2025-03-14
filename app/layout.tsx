@@ -13,10 +13,33 @@ const fontSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
 });
 
+// export const metadata: Metadata = {
+//   title: "ViePulse",
+//   description: "A patient management system",
+// };
 export const metadata: Metadata = {
   title: "ViePulse",
   description: "A patient management system",
+  openGraph: {
+    title: "ViePulse",
+    description: "A patient management system",
+    url: "https://www.viepulse.com",
+    siteName: "ViePulse",
+    type: "website",
+    images: [
+      {
+        url: "/favicon.ico",
+        width: 1200,
+        height: 630,
+        alt: "ViePulse",
+      },
+    ],
+  },
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
+
 
 export default function RootLayout({
   children,

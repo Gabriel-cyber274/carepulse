@@ -15,6 +15,7 @@ const containerStyle = {
     height: "400px",
 };
 
+
 const HospitalMap = () => {
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: GOOGLE_MAPS_API_KEY,
