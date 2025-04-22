@@ -317,10 +317,12 @@ function MainLanding() {
                     who are satisfied with the place and
                     service we have provided.</p>
                     <div className="socials">
+                        <a href="https://web.facebook.com/profile.php?id=61574293545784" target='_blank'>
                         <img src="/assets/images/facebook.png" alt="" />
-                        <img src="/assets/images/insta.png" alt="" />
-                        <img src="/assets/images/x.png" alt="" />
-                        <img src="/assets/images/twitter.png" alt="" />
+                        </a>
+                        {/* <img src="/assets/images/insta.png" alt="" /> */}
+                        <a href="https://x.com/Kingsleyochi" target='_blank'><img src="/assets/images/x.png" alt="" /></a>
+                        {/* <img src="/assets/images/twitter.png" alt="" /> */}
                     </div>
                 </div>
                 <div className="second">
