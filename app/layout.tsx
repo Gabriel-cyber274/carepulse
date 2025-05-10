@@ -28,7 +28,8 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/favicon.ico",
+        // url: "/favicon.ico",
+        url: "/LOGO.svg",
         width: 1200,
         height: 630,
         alt: "ViePulse",
@@ -36,7 +37,8 @@ export const metadata: Metadata = {
     ],
   },
   icons: {
-    icon: "/favicon.ico",
+    // icon: "/favicon.ico",
+    icon: "/LOGO.svg",
   },
 };
 

@@ -147,7 +147,8 @@ function MainLanding() {
             <nav className={scrolled ? "scrolled" : ""}>
                 <div className="cont">
                     <div className="logo">
-                        <img src="/assets/images/Logomark.png" alt="" />
+                        {/* <img src="/assets/images/Logomark.png" alt="" /> */}
+                        <img className='me-2' src="/LOGO.svg" alt="" />
                         <h2>ViePulse</h2>
                     </div>
                     <div className="links">
@@ -310,7 +311,8 @@ function MainLanding() {
             <div className="cont">
                 <div className="first">
                     <div className="logo">
-                        <img src="/assets/images/Logomark.png" alt="" />
+                        {/* <img src="/assets/images/Logomark.png" alt="" /> */}
+                        <img className='me-2' src="/LOGO.svg" width="38" height="38" alt="" />
                         <h2>ViePulse</h2>
                     </div>
                     <p>These are some customer testimonials

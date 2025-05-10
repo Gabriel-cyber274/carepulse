@@ -20,7 +20,8 @@ export default function Home() {
           /> */}
           
           <div className="logo flex items-center mb-4">
-              <img src="/assets/images/Logomark.png" alt="" />
+              {/* <img src="/assets/images/Logomark.png" alt="" /> */}
+              <img className='me-2' src="/LOGO.svg" width="38" height="38" alt="" />
               <h2 className="ms-2">ViePulse</h2>
           </div>
 
